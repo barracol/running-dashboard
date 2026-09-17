@@ -1,0 +1,9 @@
+:root{--ui-focus:#a7f432;--ui-hub-bg:#202923ef;--ui-hub-fg:#f4f7f5;--ui-hub-line:#52605a}
+html{scroll-behavior:smooth}body{padding-bottom:max(76px,env(safe-area-inset-bottom))}
+button,a,input,select,textarea{transition:outline-color .15s ease,transform .15s ease,opacity .15s ease}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--ui-focus);outline-offset:3px}
+button:disabled{cursor:wait;opacity:.62}.ui-home-hub{position:fixed;right:18px;bottom:18px;z-index:9999;display:flex;align-items:center;gap:7px;padding:11px 15px;border:1px solid var(--ui-hub-line);border-radius:999px;background:var(--ui-hub-bg);color:var(--ui-hub-fg)!important;text-decoration:none!important;font:800 13px/1 system-ui,sans-serif;box-shadow:0 8px 28px #0008;backdrop-filter:blur(8px)}
+.ui-home-hub:hover{transform:translateY(-2px);border-color:var(--ui-focus)}dialog{max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px)}dialog::backdrop{backdrop-filter:blur(4px)}
+.error,.message,.form-message,[role="status"]{overflow-wrap:anywhere}
+@media(max-width:600px){.ui-home-hub{right:10px;bottom:max(10px,env(safe-area-inset-bottom));padding:10px 12px;font-size:12px}input,select,textarea{font-size:16px!important}button,a{touch-action:manipulation}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}

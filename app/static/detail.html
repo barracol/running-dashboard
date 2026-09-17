@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="it">
+<head><script src="/static/homehub-theme.js?v=6"></script><link rel="stylesheet" href="/static/homehub-theme.css?v=6">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dettaglio attività · Running Dashboard</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js" defer></script>
+  <script src="/static/detail.js" defer></script>
+<script src="/static/hub-link.js?v=1" defer></script><link rel="stylesheet" href="/static/ui-standard.css?v=1"><script src="/static/ui-standard.js?v=1" defer></script></head>
+<body>
+  <header class="detail-header"><div><a class="back" href="/">← Dashboard</a><span class="eyebrow" id="sport">ATTIVITÀ</span><h1 id="name">Caricamento…</h1><p class="muted" id="date"></p></div><a class="button secondary" id="download" hidden>Scarica originale</a></header>
+  <main>
+    <section class="cards detail-cards" aria-label="Metriche attività">
+      <article><span>Distanza</span><strong id="distance">—</strong><small>km</small></article>
+      <article><span>Tempo in movimento</span><strong id="moving">—</strong></article>
+      <article><span>Tempo trascorso</span><strong id="elapsed">—</strong></article>
+      <article><span>Passo medio</span><strong id="pace">—</strong><small>min/km</small></article>
+      <article><span>FC media</span><strong id="heart-rate">—</strong><small>bpm</small></article>
+      <article><span>Calorie</span><strong id="calories">—</strong><small>kcal</small></article>
+    </section>
+    <section class="panel" id="track-panel">
+      <div class="panel-head"><div><span class="eyebrow">PERCORSO</span><h2>Traccia GPS</h2></div><small class="muted" id="track-info"></small></div>
+      <div class="route-wrap" id="route-wrap"><div id="map" role="application" aria-label="Mappa interattiva del percorso"></div></div>
+      <p class="empty" id="track-message" hidden></p>
+    </section>
+    <section class="panel" id="elevation-panel" hidden>
+      <div class="panel-head"><div><span class="eyebrow">PROFILO</span><h2>Altimetria</h2></div></div>
+      <div class="chart-wrap"><canvas id="elevation-chart"></canvas></div>
+    </section>
+    <section class="panel" id="performance-panel" hidden>
+      <div class="panel-head"><div><span class="eyebrow">PRESTAZIONE</span><h2 id="performance-title">Passo e frequenza cardiaca</h2></div></div>
+      <div class="chart-wrap"><canvas id="performance-detail-chart"></canvas></div>
+    </section>
+    <section class="panel" id="dynamics-panel" hidden>
+      <div class="panel-head"><div><span class="eyebrow">DINAMICHE</span><h2>Cadenza e potenza</h2></div></div>
+      <div class="chart-wrap"><canvas id="dynamics-chart"></canvas></div>
+    </section>
+    <section class="panel detail-info">
+      <div><span class="eyebrow">NOTE</span><p id="notes" class="notes">—</p></div>
+      <dl><div><dt>Origine</dt><dd id="source">—</dd></div><div><dt>File originale</dt><dd id="filename">—</dd></div></dl>
+    </section>
+  </main>
+</body>
+</html>

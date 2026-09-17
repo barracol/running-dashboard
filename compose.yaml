@@ -1,0 +1,32 @@
+services:
+  dashboard:
+    build: .
+    container_name: running-dashboard
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data
+    user: "1000:1000"
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      RUNNING_OPENAI_MODEL: ${RUNNING_OPENAI_MODEL:-gpt-5.4-mini}
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  backup:
+    build: .
+    container_name: running-dashboard-backup
+    profiles: ["backup"]
+    user: "0:0"
+    volumes:
+      - ./data:/data:ro
+      - ./backups:/backups
+    entrypoint: ["/bin/sh", "/app/scripts/backup.sh"]

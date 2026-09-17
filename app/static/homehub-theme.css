@@ -1,0 +1,140 @@
+:root{
+  --hh-light-bg:#f4f8fc;--hh-light-bg-soft:#edf3f9;--hh-light-panel:#fff;
+  --hh-light-text:#13243b;--hh-light-muted:#6b7d90;--hh-light-line:#d8e3ed;
+  --hh-light-accent:#257bc1;--hh-light-shadow:0 8px 24px rgba(34,64,93,.07);
+}
+:root[data-homehub-theme="light"]{
+  color-scheme:light;
+  --bg:var(--hh-light-bg)!important;--background:var(--hh-light-bg)!important;--page:var(--hh-light-bg)!important;
+  --panel:var(--hh-light-panel)!important;--surface:var(--hh-light-panel)!important;--card:var(--hh-light-panel)!important;
+  --surface-2:var(--hh-light-bg-soft)!important;--line:var(--hh-light-line)!important;--border:var(--hh-light-line)!important;
+  --border-color:var(--hh-light-line)!important;--text:var(--hh-light-text)!important;--ink:var(--hh-light-text)!important;
+  --foreground:var(--hh-light-text)!important;--muted:var(--hh-light-muted)!important;--subtle:var(--hh-light-muted)!important;
+  --text-muted:var(--hh-light-muted)!important;--shadow:var(--hh-light-shadow)!important;
+}
+:root[data-homehub-theme="light"] body{
+  background:radial-gradient(circle at 92% 0,rgba(83,157,224,.12),transparent 31%),var(--hh-light-bg)!important;
+  color:var(--hh-light-text)!important;
+}
+:root[data-homehub-theme="light"] body::before,
+:root[data-homehub-theme="light"] body::after{opacity:.18!important}
+:root[data-homehub-theme="light"] header:not(.modal-header),
+:root[data-homehub-theme="light"] nav:not(.leaflet-control),
+:root[data-homehub-theme="light"] main{color:var(--hh-light-text)}
+:root[data-homehub-theme="light"] h1,
+:root[data-homehub-theme="light"] h2,
+:root[data-homehub-theme="light"] h3,
+:root[data-homehub-theme="light"] h4,
+:root[data-homehub-theme="light"] strong{color:var(--hh-light-text)}
+:root[data-homehub-theme="light"] p,
+:root[data-homehub-theme="light"] small,
+:root[data-homehub-theme="light"] label{color:var(--hh-light-muted)}
+:root[data-homehub-theme="light"] input,
+:root[data-homehub-theme="light"] select,
+:root[data-homehub-theme="light"] textarea{
+  background:#fbfdff!important;color:var(--hh-light-text)!important;border-color:#cbd8e4!important;
+  box-shadow:inset 0 1px 2px rgba(32,62,91,.025)!important;
+}
+:root[data-homehub-theme="light"] input::placeholder,
+:root[data-homehub-theme="light"] textarea::placeholder{color:#8a9aaa!important}
+:root[data-homehub-theme="light"] dialog,
+:root[data-homehub-theme="light"] .modal,
+:root[data-homehub-theme="light"] .modal-card,
+:root[data-homehub-theme="light"] .modal-content,
+:root[data-homehub-theme="light"] .dialog-card{
+  background:var(--hh-light-panel)!important;color:var(--hh-light-text)!important;border-color:var(--hh-light-line)!important;
+  box-shadow:0 24px 70px rgba(31,54,80,.18)!important;
+}
+:root[data-homehub-theme="light"] :is(.card,.panel,.stat,.stat-card,.metric,.metric-card,.summary-card,.kpi,.kpi-card,.widget,.toolbar,.filters,.filter-bar,.table-wrap,.list-card,.form-card,.content-card,.hero-card,.today-card,.deadline-item,.status-panel,.app-card,.car-card,.trip-card,.book-card,.subscription-card,.document-card){
+  background:var(--hh-light-panel)!important;color:var(--hh-light-text)!important;border-color:var(--hh-light-line)!important;
+  box-shadow:var(--hh-light-shadow)!important;
+}
+:root[data-homehub-theme="light"] table{color:var(--hh-light-text)!important}
+:root[data-homehub-theme="light"] thead,
+:root[data-homehub-theme="light"] th{background:var(--hh-light-bg-soft)!important;color:#526a81!important}
+:root[data-homehub-theme="light"] td{border-color:#e4ebf2!important}
+:root[data-homehub-theme="light"] .hub-sidebar{background:#fff!important;border-right-color:var(--hh-light-line)!important;box-shadow:10px 0 30px rgba(33,62,91,.06)!important}
+:root[data-homehub-theme="light"] .sidebar-brand,
+:root[data-homehub-theme="light"] .sidebar-app,
+:root[data-homehub-theme="light"] .sidebar-system{color:var(--hh-light-text)!important}
+:root[data-homehub-theme="light"] .sidebar-brand-copy small,
+:root[data-homehub-theme="light"] .sidebar-app-copy small,
+:root[data-homehub-theme="light"] .sidebar-system,
+:root[data-homehub-theme="light"] .theme-switch{color:var(--hh-light-muted)!important}
+:root[data-homehub-theme="light"] .sidebar-app:hover{background:#edf4fb!important}
+:root[data-homehub-theme="light"] .sidebar-app.active{background:#eaf6dc!important;border-color:#abd66f!important}
+:root[data-homehub-theme="light"] .sidebar-app-icon{background:color-mix(in srgb,var(--accent) 14%,#f1f6fa)!important}
+:root[data-homehub-theme="light"] :is(.privacy-toggle,.refresh,#refresh,.notification-link,.back-hub,.install-app,.host,.hub-tabs,.secondary){
+  background:#fff!important;color:var(--hh-light-text)!important;border-color:#cbd8e4!important;
+}
+:root[data-homehub-theme="light"] :is(.service,.database,.backup-row){background:#f8fbfd!important;border-color:#dbe5ee!important}
+
+/* Native light surfaces for components that historically hardcoded dark colors. */
+:root[data-homehub-theme="light"] :is(
+  .hero,.routine-check,.task-card,.routine-manage-item,.picker-item,.mini-routine,.day-column,.board-column,.user-dialog,.user-options button,
+  .best,.week-day,.add-day,.plan-card,.coach-days label,.coach-workout,.month-card,.race-card,.coach-feedback,.document-card,
+  .movement-kind,.fuel-stats article,.list-item,.standard-item,.add-panel,.category-group,.standard-group,
+  .card-actions,.chip,.food-status,.compact-list .book,.bulk,.fact,.plan,.travel-leg,.transfer-card,.route-stop,.trip-document,
+  .item,.details div,.tabs a,.item-actions button,.item-actions a,.wallet-card-face,.image-viewer-head
+){background:var(--hh-light-panel)!important;color:var(--hh-light-text)!important;border-color:var(--hh-light-line)!important;box-shadow:var(--hh-light-shadow)!important}
+:root[data-homehub-theme="light"] :is(.mini-routine,.movement-kind,.chip,.transfer-icon,.column span,.bar-track){background:var(--hh-light-bg-soft)!important;color:#587086!important}
+:root[data-homehub-theme="light"] :is(.secondary,.tab,.ghost,.back,.card-actions button,.item-actions button,.item-actions a,.actions #cancel){background:#fff!important;color:var(--hh-light-text)!important;border:1px solid #cbd8e4!important}
+:root[data-homehub-theme="light"] .tab.active{background:var(--green,#9bef29)!important;color:#102019!important;border-color:transparent!important}
+:root[data-homehub-theme="light"] .hero p,
+:root[data-homehub-theme="light"] :is(.routine-check,.task-card,.routine-manage-item,.picker-item,.mini-routine,.list-item,.item) span{color:inherit}
+:root[data-homehub-theme="light"] .routine-check.done span{color:var(--hh-light-muted)!important}
+:root[data-homehub-theme="light"] .race-card.registered{background:#eef9e6!important;border-color:#9ed26d!important}
+:root[data-homehub-theme="light"] dialog::backdrop{background:rgba(18,34,51,.34)!important;backdrop-filter:blur(4px)}
+
+.homehub-theme-control{position:fixed;z-index:9997;top:14px;right:14px;display:flex;align-items:center;gap:7px;padding:6px 9px 6px 7px;border:1px solid #34463f;border-radius:999px;background:rgba(18,29,26,.96);color:#edf5f2;font:750 12px/1 system-ui,-apple-system,sans-serif;box-shadow:0 7px 22px rgba(0,0,0,.18);cursor:pointer;backdrop-filter:blur(10px)}
+.homehub-theme-control:hover{transform:translateY(-1px)}
+.homehub-theme-control-track{width:30px;height:18px;padding:2px;border-radius:999px;background:#a4ef4a;display:flex;justify-content:flex-end}
+.homehub-theme-control-thumb{width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.28)}
+:root[data-homehub-theme="light"] .homehub-theme-control{background:rgba(255,255,255,.96);color:#42566a;border-color:#cad7e3;box-shadow:0 6px 18px rgba(33,62,91,.1)}
+:root[data-homehub-theme="light"] .homehub-theme-control-track{background:#d7e1eb;justify-content:flex-start}
+@media(max-width:700px){.homehub-theme-control{top:9px;right:9px}.homehub-theme-control-label{display:none}}
+@media(prefers-reduced-motion:no-preference){.homehub-theme-control{transition:transform .18s ease,background .18s ease,border-color .18s ease}}
+
+/*
+ * Component coverage shared by every dashboard.
+ * Keep selectors here instead of adding one-off light patches to each app.
+ */
+:root[data-homehub-theme="light"] :is(
+  .profile-toolbar,.notify-toolbar,.telegram-panel,.notice,.notification-list .empty,.notification-list .loading,
+  .calendar,.month-grid,.week-grid,.day,.weekday,.week-day,.view-switch,.filter,
+  .summary article,.document,.login-card,#current,
+  .car-hero,.car-facts article,.fuel-stats article,.maintenance-schedule-card,
+  .floors>article,.solar,.room,
+  .shoe-card,.shoe-stats span,.exercise-library article,.exercise-atlas article,
+  .profile-card,.comp-grid article,.person,.bonus-row,
+  .shopping-item,.standard-item,.weight-row,.record,.reminder,.chart,
+  .visual-card,.shelf-card,.detail-hero,.trip-meta>*,.wallet-card-face
+){background:var(--hh-light-panel)!important;color:var(--hh-light-text)!important;border-color:var(--hh-light-line)!important;box-shadow:var(--hh-light-shadow)!important}
+
+:root[data-homehub-theme="light"] :is(
+  .profile-toolbar,.notify-toolbar,.telegram-panel,.notice,.calendar,.week-grid,.day,.week-day,.view-switch,.filter,
+  .login-card,#current,.car-hero,.floors>article,.solar,.room,.shoe-card,.profile-card,.person,
+  .chart,.detail-hero
+) :is(h1,h2,h3,h4,strong,b,span){color:var(--hh-light-text)}
+
+:root[data-homehub-theme="light"] :is(.notice-actions button,.notice-actions a,.document-actions a,.document-actions button,.room input,.climate-controls input){
+  background:#fff!important;color:var(--hh-light-text)!important;border-color:#cbd8e4!important
+}
+:root[data-homehub-theme="light"] :is(.day.today,.week-day.today){background:#edf7e6!important}
+:root[data-homehub-theme="light"] .calendar .event{color:var(--hh-light-text)!important;background:color-mix(in srgb,var(--event-color) 13%,#fff)!important}
+:root[data-homehub-theme="light"] .home-hero::after{background:linear-gradient(90deg,rgba(17,35,52,.52),transparent 52%)}
+:root[data-homehub-theme="light"] .home-hero :is(strong,small){color:#fff!important;text-shadow:0 1px 8px rgba(0,0,0,.4)}
+:root[data-homehub-theme="light"] .maintenance-schedule-card.overdue{background:#fff5f5!important;border-color:#ef6273!important}
+:root[data-homehub-theme="light"] .maintenance-schedule-card.soon{background:#fff9e8!important;border-color:#e7ad32!important}
+:root[data-homehub-theme="light"] :is(.shoe-progress,.progress,.bar-track,.storage-bar){background:#e2eaf1!important}
+:root[data-homehub-theme="light"] .hierarchy .person{background:#f1eaff!important;color:#2c1851!important;border-color:#d7c5f5!important}
+:root[data-homehub-theme="light"] .hierarchy .person :is(b,small){color:inherit!important}
+:root[data-homehub-theme="light"] .chart{background:#fffaf7!important}
+:root[data-homehub-theme="light"] .trip-card :is(h1,h2,h3,strong),
+:root[data-homehub-theme="light"] .detail-hero :is(h1,h2,h3,strong){color:var(--hh-light-text)!important}
+:root[data-homehub-theme="light"] .wallet-card-face{box-shadow:0 8px 22px rgba(34,64,93,.12)!important}
+
+@media(max-width:600px){
+  .homehub-theme-control{top:8px;right:8px}
+  :root[data-homehub-theme="light"] :is(.today-card,.deadline-item){box-shadow:none!important}
+}

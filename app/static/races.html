@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="it">
+<head><script src="/static/homehub-theme.js?v=6"></script><link rel="stylesheet" href="/static/homehub-theme.css?v=6">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Planning Gare · Running Dashboard</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/style.css?v=20260808-races2">
+  <script src="/static/races.js?v=20260808-races2" defer></script>
+<script src="/static/hub-link.js?v=1" defer></script><link rel="stylesheet" href="/static/ui-standard.css?v=1"><script src="/static/ui-standard.js?v=1" defer></script></head>
+<body>
+  <header><div><a class="back" href="/">← Archivio ufficiale</a><span class="eyebrow">OBIETTIVI E ISCRIZIONI</span><h1>Planning Gare</h1></div><div class="header-actions"><a class="button secondary" href="/exercises">Esercizi</a><a class="button secondary" href="/planning">Pianificazione</a><button id="new-race">＋ Aggiungi gara</button></div></header>
+  <main>
+    <section class="race-summary cards">
+      <article><span>Gare nel periodo</span><strong id="race-count">0</strong></article>
+      <article><span>Iscrizioni confermate</span><strong id="registered-count">0</strong></article>
+      <article><span>Budget confermato</span><strong id="registered-budget">€ 0</strong></article>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><div><span class="eyebrow">PROSSIMI 10 MESI</span><h2 id="calendar-range">Calendario gare</h2></div><div class="week-nav"><button class="secondary" id="previous-window" title="Mese precedente">←</button><button class="secondary" id="current-window">Oggi</button><button class="secondary" id="next-window" title="Mese successivo">→</button></div></div>
+      <div class="calendar-legend"><span><i class="legend-dot interested"></i>Interessato</span><span><i class="legend-dot registered"></i>Iscritto</span></div>
+      <div class="year-grid" id="year-grid"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><div><span class="eyebrow">GARE</span><h2>Dettagli e iscrizioni</h2></div><span id="message" role="status"></span></div>
+      <div class="race-list" id="race-list"></div>
+    </section>
+  </main>
+  <dialog id="race-dialog"><form id="race-form"><div class="dialog-head"><h2 id="race-form-title">Aggiungi gara</h2><button type="button" class="icon close-race">×</button></div><input type="hidden" id="race-id"><div class="form-grid">
+    <label>Data<input id="race-date" type="date" required></label><label>Nome gara<input id="race-name" required maxlength="200" placeholder="Maratona di…"></label>
+    <label class="full">Luogo<input id="race-location" maxlength="300" placeholder="Città, regione"></label>
+    <label>Distanza (km)<input id="race-distance" type="number" min="0.1" step="0.001"></label><label>Costo (€)<input id="race-cost" type="number" min="0" step="0.01"></label>
+    <label class="full">Sito web<input id="race-website" type="url" maxlength="1000" placeholder="https://…"></label>
+    <label class="full">Note<textarea id="race-notes" rows="3"></textarea></label>
+    <label class="check-label full"><input id="race-registered" type="checkbox"> Iscrizione già confermata</label>
+  </div><div class="actions"><button type="button" class="secondary close-race">Annulla</button><button type="submit">Salva gara</button></div></form></dialog>
+</body>
+</html>

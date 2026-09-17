@@ -1,0 +1,30 @@
+.planning-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 2px 0 12px;
+}
+.planning-tab { min-width: 120px; }
+.planning-tab.active { background: var(--green); color: #111; }
+.swim-stats,
+.sport-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 16px 0 22px;
+}
+.swim-stats article,
+.sport-stats article {
+  display: grid;
+  gap: 5px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #0e1518;
+}
+.swim-stats span, .sport-stats span { color: var(--muted); font-size: .78rem; }
+.swim-stats strong, .sport-stats strong { color: var(--cyan); font-size: 1.65rem; }
+@media (max-width: 650px) {
+  .swim-stats,
+.sport-stats { grid-template-columns: 1fr; }
+  .planning-tabs button { flex: 1; }
+}

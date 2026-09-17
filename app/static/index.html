@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="it">
+<head><script src="/static/homehub-theme.js?v=6"></script><link rel="stylesheet" href="/static/homehub-theme.css?v=6">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Running Dashboard</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/style.css?v=9">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js" defer></script>
+  <script src="/static/app.js?v=11" defer></script>
+<script src="/static/hub-link.js?v=1" defer></script><link rel="stylesheet" href="/static/ui-standard.css?v=1"><script src="/static/ui-standard.js?v=1" defer></script></head>
+<body>
+  <header><div><span class="eyebrow">ARCHIVIO UFFICIALE · STRAVA</span><h1>Running Dashboard</h1></div><nav class="header-actions"><button id="open-strava-import" class="secondary">Importa Strava</button><a class="button secondary" href="/exercises">Esercizi</a><a class="button secondary" href="/planning">Pianificazione</a><a class="button" href="/races">Planning gare →</a></nav></header>
+  <main>
+    <section class="toolbar" aria-label="Filtri dashboard"><label>Sport<select id="sport-filter"><option value="running">Corsa</option></select></label></section>
+    <section class="cards" aria-label="Riepilogo">
+      <article><span>Attività</span><strong id="total-activities">—</strong></article>
+      <article><span>Distanza</span><strong id="total-distance">—</strong><small>km totali</small></article>
+      <article><span>Tempo</span><strong id="total-duration">—</strong><small>ore totali</small></article>
+      <article><span>Calorie</span><strong id="total-calories">—</strong><small>kcal</small></article>
+    </section>
+    <section class="panel documents-panel">
+      <div class="panel-head"><div><span class="eyebrow">DOCUMENTI SPORTIVI</span><h2>Scadenze</h2></div><button id="edit-documents" class="secondary">Modifica</button></div>
+      <div class="document-cards">
+        <article class="document-card" id="run-card-status"><span>RunCard</span><strong id="run-card-number">Non inserita</strong><small id="run-card-expiry">Scadenza non indicata</small></article>
+        <article class="document-card" id="certificate-status"><span>Certificato medico</span><strong id="certificate-label">Scadenza non indicata</strong><small id="certificate-countdown"></small></article>
+      </div>
+    </section>
+    <section class="panel chart-panel">
+      <div class="panel-head"><div><span class="eyebrow">ANDAMENTO</span><h2>Volume e prestazioni</h2></div><select id="period"><option value="week">Settimanale</option><option value="month">Mensile</option><option value="year">Annuale</option></select></div>
+      <div class="chart-wrap"><canvas id="volume-chart"></canvas></div>
+      <div class="chart-wrap small"><canvas id="performance-chart"></canvas></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><div><span class="eyebrow">RECORD PERSONALI · CORSA</span><h2>Tempi migliori</h2></div><small class="muted">Distanze ufficiali · tolleranza GPS 3%</small></div>
+      <div class="personal-bests" id="personal-bests"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><div><span class="eyebrow">DIARIO</span><h2>Attività</h2></div><div><span id="activity-count" class="muted"></span><span id="message" role="status"></span></div></div>
+      <div class="table-wrap"><table><thead><tr><th>Data</th><th>Tipo</th><th>Distanza</th><th>Durata</th><th>Passo / velocità</th><th>FC media</th><th></th></tr><tr class="column-filters"><th><input data-filter="date" placeholder="Filtra data"></th><th><input data-filter="type" placeholder="Filtra sport"></th><th><input data-filter="distance" placeholder="Filtra km"></th><th><input data-filter="duration" placeholder="Filtra durata"></th><th><input data-filter="pace" placeholder="Filtra prestazione"></th><th><input data-filter="heartRate" placeholder="Filtra FC"></th><th><button id="clear-filters" class="secondary" title="Azzera filtri">×</button></th></tr></thead><tbody id="activity-list"></tbody></table></div>
+    </section>
+  </main>
+  <dialog id="activity-dialog">
+    <form id="activity-form"><div class="dialog-head"><h2 id="form-title">Nuova attività</h2><button type="button" class="icon" id="close-button">×</button></div>
+      <input type="hidden" id="activity-id">
+      <div class="form-grid">
+        <label>Data<input id="activity-date" type="date" required></label>
+        <label>Tipo<select id="activity-type"><option value="running">Corsa</option><option value="trail_running">Trail</option><option value="walking">Camminata</option><option value="hiking">Escursione</option><option value="cycling">Ciclismo</option><option value="mountain_biking">Mountain bike</option><option value="swimming">Nuoto</option><option value="rowing">Canottaggio</option><option value="kayaking">Kayak</option><option value="skiing">Sci alpino</option><option value="cross_country_skiing">Sci di fondo</option><option value="skating">Pattinaggio</option><option value="workout">Allenamento</option><option value="yoga">Yoga</option><option value="football">Calcio</option><option value="tennis">Tennis</option><option value="other">Altro</option></select></label>
+        <label>Distanza (km)<input id="distance-km" type="number" min="0" max="1000" step="0.01" required></label>
+        <label>Durata (hh:mm:ss)<input id="duration" placeholder="00:45:00" pattern="^(?:\d+:)?[0-5]?\d:[0-5]\d$" required></label>
+        <label>Calorie<input id="calories" type="number" min="0"></label>
+        <label>FC media<input id="heart-rate" type="number" min="20" max="250"></label>
+        <label class="full">Scarpa utilizzata<select id="activity-shoe"><option value="">Nessuna scarpa</option></select></label>
+        <label class="full">Note<textarea id="notes" rows="3" maxlength="2000"></textarea></label>
+      </div>
+      <div class="actions"><button type="button" class="secondary" id="cancel-button">Annulla</button><button type="submit">Salva attività</button></div>
+    </form>
+  </dialog>
+  <dialog id="documents-dialog">
+    <form id="documents-form"><div class="dialog-head"><h2>Documenti sportivi</h2><button type="button" class="icon" id="close-documents">×</button></div>
+      <div class="form-grid">
+        <label class="full">Numero RunCard<input id="run-card-input" maxlength="100" autocomplete="off"></label>
+        <label>Scadenza RunCard<input id="run-card-expiry-input" inputmode="numeric" placeholder="GG/MM/AAAA"></label>
+        <label>Scadenza certificato medico<input id="certificate-expiry-input" inputmode="numeric" placeholder="GG/MM/AAAA"></label>
+      </div>
+      <p id="documents-message" class="form-message" role="status"></p>
+      <div class="actions"><button type="button" class="secondary" id="cancel-documents">Annulla</button><button type="submit">Salva documenti</button></div>
+    </form>
+  </dialog>
+  <dialog id="strava-import-dialog">
+    <form id="strava-import-form"><div class="dialog-head"><div><span class="eyebrow">IMPORTAZIONE MULTIPLA</span><h2>Export Strava</h2></div><button type="button" class="icon" id="close-strava-import">×</button></div>
+      <p class="muted">Carica uno o più ZIP completi esportati da Strava. Lo storico precedente alla data scelta viene ignorato e non viene modificato.</p>
+      <div class="form-grid">
+        <label class="full">ZIP Strava<input id="strava-zip-files" type="file" accept=".zip,application/zip" multiple required></label>
+        <label class="full">Importa attività a partire dal<input id="strava-start-date" type="date" required><small>La data è inclusa. Hash e ID Strava impediscono comunque i duplicati.</small></label>
+      </div>
+      <div id="strava-import-result" class="import-result" role="status"></div>
+      <div class="actions"><button type="button" class="secondary" id="cancel-strava-import">Annulla</button><button type="submit" id="submit-strava-import">Importa attività</button></div>
+    </form>
+  </dialog>
+</body>
+</html>

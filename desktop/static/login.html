@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Scegli profilo · Running Dashboard</title>
+  <style>
+    :root{color-scheme:dark;font-family:Inter,system-ui,sans-serif}*{box-sizing:border-box}body{min-height:100vh;margin:0;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 75% 10%,#24351e,transparent 35%),#0b0d0c;color:#f4f7f5}.shell{width:min(900px,100%)}.eyebrow{color:#a7f432;font-size:.7rem;font-weight:900;letter-spacing:.18em}.shell h1{max-width:700px;margin:10px 0 12px;font-size:clamp(2.5rem,7vw,5.5rem);line-height:.9;letter-spacing:-.06em}.intro{color:#929c96;line-height:1.6}.profiles{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:35px}.profile{min-height:260px;padding:0;border:1px solid #2a312d;border-radius:16px;background:#141816;color:inherit;text-align:left;cursor:pointer;overflow:hidden}.profile:hover{border-color:#a7f432;transform:translateY(-2px)}.profile div{padding:28px}.profile span{color:#43d9c7;font-size:.66rem;font-weight:900;letter-spacing:.14em}.profile h2{margin:55px 0 8px;font-size:2rem}.profile p{color:#929c96;line-height:1.5}.profile.demo{background:linear-gradient(145deg,#1d2619,#141816)}.profile.demo span{color:#a7f432}.note{margin-top:18px;color:#667069;font-size:.72rem}@media(max-width:650px){.profiles{grid-template-columns:1fr}.profile{min-height:210px}.profile h2{margin-top:30px}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <span class="eyebrow">RUNNING DASHBOARD · DESKTOP</span>
+    <h1>Come vuoi entrare?</h1>
+    <p class="intro">I due profili usano archivi separati. Nessuna password: questa schermata serve soltanto a scegliere l'ambiente locale.</p>
+    <div class="profiles">
+      <form method="post" action="/api/desktop/profile"><input type="hidden" name="profile" value="demo"><button class="profile demo" type="submit"><div><span>DATI DI ESEMPIO</span><h2>Esplora la demo</h2><p>Corsa, nuoto, ciclismo, peso, gare e planning già compilati.</p></div></button></form>
+      <form method="post" action="/api/desktop/profile"><input type="hidden" name="profile" value="user"><button class="profile" type="submit"><div><span>ARCHIVIO PERSONALE</span><h2>Il mio profilo</h2><p>Uno spazio pulito e persistente per i tuoi dati reali.</p></div></button></form>
+    </div>
+    <p class="note">Non è un sistema di autenticazione e non protegge i dati da chi usa questo computer.</p>
+  </main>
+</body>
+</html>
