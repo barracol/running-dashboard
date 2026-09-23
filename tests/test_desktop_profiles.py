@@ -47,3 +47,14 @@ def test_homehub_script_is_replaced_by_profile_switch(tmp_path, monkeypatch):
     script = client.get("/static/hub-link.js").text
     assert "desktop-profile-switch" in script
     assert "Home Hub" not in script
+
+
+def test_user_profile_completes_onboarding_and_hides_demo(tmp_path, monkeypatch):
+    client = TestClient(desktop_test_app(tmp_path, monkeypatch))
+    response = client.post("/api/desktop/profile", data={"profile":"user"}, follow_redirects=False)
+    assert response.status_code == 303
+    assert client.get("/api/desktop/profile").json()["onboarding_complete"] is True
+    assert client.get("/desktop-login", follow_redirects=False).headers["location"] == "/"
+    assert client.get("/static/hub-link.js").text == ""
+    rejected = client.post("/api/desktop/profile", data={"profile":"demo"})
+    assert rejected.status_code == 409

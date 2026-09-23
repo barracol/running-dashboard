@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 from threading import Lock
@@ -19,6 +20,7 @@ from .theme import community_settings, ensure_theme_file, theme_css
 
 PROFILE_COOKIE = "running_desktop_profile"
 LOGIN_PATH = "/desktop-login"
+SETTINGS_FILENAME = "desktop-settings.json"
 _demo_lock = Lock()
 _demo_ready = False
 
@@ -28,6 +30,28 @@ class CommunityPreference(BaseModel):
 
 def _data_dir() -> Path:
     return Path(os.environ.get("RUNNING_DATA_DIR", Path.home() / ".running-dashboard"))
+
+
+def _desktop_settings() -> dict:
+    path = _data_dir() / SETTINGS_FILENAME
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+        return value if isinstance(value, dict) else {}
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def _onboarding_complete() -> bool:
+    return _desktop_settings().get("onboarding_complete") is True
+
+
+def _complete_onboarding() -> None:
+    data_dir = _data_dir(); data_dir.mkdir(parents=True, exist_ok=True)
+    path = data_dir / SETTINGS_FILENAME
+    settings = _desktop_settings(); settings["onboarding_complete"] = True
+    temporary = path.with_suffix(".tmp")
+    temporary.write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")
+    temporary.replace(path)
 
 
 def _ensure_demo_once() -> None:
@@ -48,12 +72,18 @@ class DesktopProfileMiddleware:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
         path = scope.get("path", "")
+        completed = _onboarding_complete()
         headers = Headers(scope=scope)
         profile = headers.get("cookie", "")
         profile = next((part.split("=", 1)[1] for part in profile.split("; ") if part.startswith(f"{PROFILE_COOKIE}=")), "")
+        if completed:
+            profile = "user"
+            if path == LOGIN_PATH:
+                return await RedirectResponse("/", status_code=303)(scope, receive, send)
 
         if path == "/static/hub-link.js":
-            return await Response(_profile_switch_script(), media_type="application/javascript")(scope, receive, send)
+            script = "" if completed else _profile_switch_script()
+            return await Response(script, media_type="application/javascript")(scope, receive, send)
         if path == "/static/desktop-theme.css":
             return await Response(theme_css(_data_dir()), media_type="text/css", headers={"Cache-Control": "no-store"})(scope, receive, send)
         public = path in {LOGIN_PATH, "/health", "/api/desktop/profile"} or path.startswith("/desktop-static/")
@@ -92,16 +122,22 @@ def attach_desktop(app: FastAPI) -> None:
     @app.post("/api/desktop/profile", include_in_schema=False)
     def select_profile(profile: str = Form(...)) -> RedirectResponse:
         selected = "demo" if profile == "demo" else "user"
+        if selected == "demo" and _onboarding_complete():
+            raise HTTPException(status_code=409, detail="La demo non è più disponibile dopo l’attivazione del profilo personale")
         if selected == "demo":
             _ensure_demo_once()
+        else:
+            _complete_onboarding()
         response = RedirectResponse("/", status_code=303)
         response.set_cookie(PROFILE_COOKIE, selected, httponly=True, samesite="strict", max_age=31_536_000)
         return response
 
     @app.get("/api/desktop/profile", include_in_schema=False)
     def profile_context_with_request(request: Request) -> dict:
+        if _onboarding_complete():
+            return {"desktop": True, "profile": "user", "onboarding_complete": True}
         value = request.cookies.get(PROFILE_COOKIE, "user")
-        return {"desktop": True, "profile": value if value in {"demo", "user"} else "user"}
+        return {"desktop": True, "profile": value if value in {"demo", "user"} else "user", "onboarding_complete": False}
 
     @app.get("/api/desktop/community", include_in_schema=False)
     def community_feed() -> dict:
