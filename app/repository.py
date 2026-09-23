@@ -52,7 +52,7 @@ def coach_recent_activities(start: date, end: date) -> list[dict]:
                       activity_type, notes, record_status
                FROM activities
                WHERE activity_date BETWEEN ? AND ?
-               ORDER BY activity_date, id""",
+               ORDER BY activity_date, CASE record_status WHEN 'verified' THEN 0 ELSE 1 END, id""",
             (start.isoformat(), end.isoformat()),
         ).fetchall()
     return [dict(row) for row in rows]
@@ -91,11 +91,12 @@ def create_activity(activity: ActivityCreate, file_metadata: dict | None = None,
 
 def external_duplicate(activity: dict, source: str = "intervals.icu") -> dict | None:
     with database() as db:
-        exact = db.execute("SELECT id FROM activities WHERE source = ? AND source_activity_id = ?", (source, activity["external_id"])).fetchone()
+        exact = db.execute("SELECT id FROM activities WHERE record_status = 'verified' AND source = ? AND source_activity_id = ?", (source, activity["external_id"])).fetchone()
         if exact:
             return {"id": exact["id"], "reason": "id"}
         close = db.execute(
-            """SELECT id FROM activities WHERE activity_date = ? AND activity_type = ?
+            """SELECT id FROM activities WHERE record_status = 'verified'
+               AND activity_date = ? AND activity_type = ?
                AND ABS(distance_m - ?) <= 50 AND ABS(duration_s - ?) <= 10 ORDER BY id LIMIT 1""",
             (activity["activity_date"], activity["activity_type"], activity["distance_m"], activity["duration_s"]),
         ).fetchone()

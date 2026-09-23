@@ -353,7 +353,15 @@ def coach_status():
 def _coach_context(payload: CoachPlanRequest) -> dict:
     history_start = payload.week_start - timedelta(days=56)
     history_end = payload.week_start - timedelta(days=1)
-    activities = repository.coach_recent_activities(history_start, history_end)
+    raw_activities = repository.coach_recent_activities(history_start, history_end)
+    # The official entry and its manually recorded draft describe the same workout
+    # when date, sport, distance and duration are identical. Repository ordering
+    # puts verified first, so the official record wins while unmatched drafts remain.
+    unique: dict[tuple, dict] = {}
+    for item in raw_activities:
+        key = (item["activity_date"], item["activity_type"], item["distance_m"], item["duration_s"])
+        unique.setdefault(key, item)
+    activities = list(unique.values())
     weekly: dict[str, dict] = {}
     compact_activities = []
     for item in activities:

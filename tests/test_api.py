@@ -266,3 +266,18 @@ def test_running_shoes_track_activity_distance_and_photo(client):
     assert client.get("/api/shoes").json()[0]["distance_m"]==132000
     assert client.delete(f"/api/shoes/{shoe_id}").status_code==204
     assert client.get(f"/api/activities/{activity.json()['id']}").json()["shoe_id"] is None
+
+
+def test_coach_context_merges_matching_official_and_manual_activity(client):
+    from datetime import date
+    from app import main, repository
+    from app.schemas import ActivityCreate, CoachPlanRequest
+    payload=ActivityCreate(activity_date=date(2026,9,1),distance_m=5000,duration_s=1800,activity_type="running")
+    repository.create_activity(payload,record_status="draft")
+    repository.create_activity(payload,record_status="verified")
+    context=main._coach_context(CoachPlanRequest(week_start=date(2026,9,7),sessions=1))
+    matching=[item for item in context["recent_activities"] if item["date"]=="2026-09-01"]
+    assert len(matching)==1
+    assert matching[0]["status"]=="verified"
+    week=next(item for item in context["weekly_totals"] if item["week_start"]=="2026-08-31")
+    assert week["sessions"]==1 and week["distance_m"]==5000
