@@ -103,18 +103,34 @@ def external_duplicate(activity: dict, source: str = "intervals.icu") -> dict | 
     return {"id": close["id"], "reason": "dati"} if close else None
 
 
-def import_external_activity(activity: dict, source: str = "intervals.icu") -> dict:
+def import_external_activity(activity: dict, source: str = "intervals.icu", file_metadata: dict | None = None) -> dict:
+    file_metadata = file_metadata or {}
     with database() as db:
         cursor = db.execute(
             """INSERT INTO activities
                (activity_date, distance_m, duration_s, calories, avg_heart_rate, activity_type, notes, shoe_id,
-                activity_name, elapsed_s, source, source_activity_id, record_status)
-               VALUES (?, ?, ?, ?, ?, ?, '', NULL, ?, ?, ?, ?, 'verified')""",
+                activity_name, elapsed_s, source, source_activity_id, original_filename, original_file_path,
+                original_file_hash, record_status)
+               VALUES (?, ?, ?, ?, ?, ?, '', NULL, ?, ?, ?, ?, ?, ?, ?, 'verified')""",
             (activity["activity_date"], activity["distance_m"], activity["duration_s"], activity["calories"],
-             activity["avg_heart_rate"], activity["activity_type"], activity["activity_name"], activity["elapsed_s"], source, activity["external_id"]),
+             activity["avg_heart_rate"], activity["activity_type"], activity["activity_name"], activity["elapsed_s"], source,
+             activity["external_id"], file_metadata.get("original_filename"), file_metadata.get("original_file_path"),
+             file_metadata.get("original_file_hash")),
         )
         activity_id = cursor.lastrowid
     return get_activity(activity_id)  # type: ignore[return-value]
+
+
+def attach_activity_file(activity_id: int, file_metadata: dict) -> bool:
+    with database() as db:
+        cursor = db.execute(
+            """UPDATE activities
+               SET original_filename = ?, original_file_path = ?, original_file_hash = ?, updated_at = CURRENT_TIMESTAMP
+               WHERE id = ? AND original_file_path IS NULL""",
+            (file_metadata["original_filename"], file_metadata["original_file_path"],
+             file_metadata["original_file_hash"], activity_id),
+        )
+    return cursor.rowcount > 0
 
 
 def update_activity(activity_id: int, patch: ActivityUpdate) -> dict | None:

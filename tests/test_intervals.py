@@ -1,4 +1,5 @@
 from datetime import date
+import gzip
 
 
 def activity():
@@ -32,3 +33,20 @@ def test_planning_draft_does_not_block_official_import(client, monkeypatch):
     imported=client.post("/api/intervals/import",params=params).json()
     assert imported["imported"] == 1
     assert len(client.get("/api/drafts").json()) == 1
+
+
+def test_duplicate_intervals_activity_is_enriched_with_original_track(client, monkeypatch):
+    from app import main, repository
+    normalized = __import__("app.intervals_client", fromlist=["normalize_activity"]).normalize_activity(activity() | {"file_type": "gpx"})
+    repository.import_external_activity(normalized)
+    gpx = b'''<?xml version="1.0"?><gpx xmlns="http://www.topografix.com/GPX/1/1"><trk><trkseg><trkpt lat="45.1" lon="9.1"><ele>100</ele></trkpt><trkpt lat="45.2" lon="9.2"><ele>110</ele></trkpt></trkseg></trk></gpx>'''
+    monkeypatch.setattr(main, "intervals_activities", lambda start, end: [normalized])
+    monkeypatch.setattr(main, "intervals_activity_file", lambda activity_id, file_type: (gzip.compress(gpx), "gpx"))
+    params={"start_date":"2026-09-01","end_date":"2026-09-30"}
+    result=client.post("/api/intervals/import",params=params).json()
+    assert result["imported"] == 0 and result["files_attached"] == 1
+    saved=client.get("/api/activities").json()[0]
+    detail=client.get(f"/api/activities/{saved['id']}/detail").json()
+    assert detail["has_original_file"] is True
+    assert detail["track"]["status"] == "available"
+    assert len(detail["track"]["points"]) == 2

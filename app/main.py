@@ -28,7 +28,11 @@ from .schemas import (
 )
 from .tracks import activity_track
 from .strava_import import import_export
-from .intervals_client import IntervalsError, configuration as intervals_configuration, list_activities as intervals_activities
+from .intervals_client import (
+    IntervalsError, configuration as intervals_configuration,
+    download_activity_file as intervals_activity_file,
+    list_activities as intervals_activities,
+)
 
 BASE_DIR = Path(__file__).parent
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024
@@ -582,7 +586,33 @@ def _intervals_preview(start_date: date, end_date: date) -> list[dict]:
         duplicate = repository.external_duplicate(activity)
         activity["duplicate"] = bool(duplicate)
         activity["duplicate_reason"] = duplicate["reason"] if duplicate else None
+        activity["duplicate_id"] = duplicate["id"] if duplicate else None
     return activities
+
+
+def _intervals_file_metadata(activity: dict) -> dict | None:
+    downloaded = intervals_activity_file(activity["external_id"], activity.get("file_type"))
+    if downloaded is None:
+        return None
+    content, extension = downloaded
+    digest = sha256(content).hexdigest()
+    compressed = content.startswith(b"\x1f\x8b")
+    suffix = f".{extension}.gz" if compressed else f".{extension}"
+    stored_name = f"{digest}{suffix}"
+    settings = get_settings()
+    settings.upload_dir.mkdir(parents=True, exist_ok=True)
+    destination = settings.upload_dir / stored_name
+    try:
+        descriptor = os.open(destination, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(descriptor, "wb") as stream:
+            stream.write(content)
+    except FileExistsError:
+        pass
+    return {
+        "original_filename": f"{activity['external_id']}{suffix}",
+        "original_file_path": stored_name,
+        "original_file_hash": digest,
+    }
 
 
 @app.get("/api/intervals/preview")
@@ -594,8 +624,26 @@ def preview_intervals(start_date: date = Query(...), end_date: date = Query(...)
 @app.post("/api/intervals/import", status_code=status.HTTP_201_CREATED)
 def import_intervals(start_date: date = Query(...), end_date: date = Query(...)):
     activities = _intervals_preview(start_date, end_date)
-    imported = [repository.import_external_activity(item) for item in activities if not item["duplicate"]]
-    return {"imported": len(imported), "duplicates": len(activities) - len(imported), "ids": [item["id"] for item in imported]}
+    imported = []
+    files_attached = 0
+    try:
+        for item in activities:
+            if not item["duplicate"]:
+                metadata = _intervals_file_metadata(item)
+                imported.append(repository.import_external_activity(item, file_metadata=metadata))
+                files_attached += int(metadata is not None)
+            elif item["duplicate_reason"] == "id":
+                file_info = repository.get_activity_file(item["duplicate_id"])
+                if file_info and not file_info["original_file_path"]:
+                    metadata = _intervals_file_metadata(item)
+                    if metadata and repository.attach_activity_file(item["duplicate_id"], metadata):
+                        files_attached += 1
+    except IntervalsError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    return {
+        "imported": len(imported), "duplicates": len(activities) - len(imported),
+        "files_attached": files_attached, "ids": [item["id"] for item in imported],
+    }
 
 
 @app.post("/api/import", response_model=ImportResult, status_code=status.HTTP_201_CREATED)

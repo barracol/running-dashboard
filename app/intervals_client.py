@@ -5,7 +5,7 @@ from datetime import date
 import json
 import os
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 
 SPORTS = {
@@ -53,6 +53,37 @@ def list_activities(oldest: date, newest: date) -> list[dict]:
         raise IntervalsError("Risposta attività Intervals.icu non valida")
     return [normalize_activity(item) for item in payload if isinstance(item, dict) and item.get("id")]
 
+def download_activity_file(activity_id: str, file_type: str | None) -> tuple[bytes, str] | None:
+    """Download the gzip-compressed original activity file when available."""
+    if not file_type:
+        return None
+    api_key = os.getenv("INTERVALS_API_KEY", "").strip()
+    if not api_key:
+        raise IntervalsError("Intervals.icu non è configurato")
+    base_url = os.getenv("INTERVALS_BASE_URL", "https://intervals.icu/api/v1").strip().rstrip("/")
+    if not base_url.startswith("https://") and "localhost" not in base_url:
+        raise IntervalsError("INTERVALS_BASE_URL deve usare HTTPS")
+    token = b64encode(f"API_KEY:{api_key}".encode()).decode()
+    request = Request(
+        f"{base_url}/activity/{quote(str(activity_id), safe='')}/file",
+        headers={"Authorization": f"Basic {token}", "Accept": "application/octet-stream", "User-Agent": "RunningDashboard/0.1"},
+    )
+    try:
+        with urlopen(request, timeout=30) as response:
+            content = response.read(25 * 1024 * 1024 + 1)
+    except HTTPError as exc:
+        if exc.code == 404:
+            return None
+        if exc.code in {401, 403}:
+            raise IntervalsError("Credenziali Intervals.icu non valide o accesso negato") from exc
+        raise IntervalsError(f"Download file Intervals.icu fallito con HTTP {exc.code}") from exc
+    except (URLError, TimeoutError) as exc:
+        raise IntervalsError("Il file originale Intervals.icu non è raggiungibile") from exc
+    if len(content) > 25 * 1024 * 1024:
+        raise IntervalsError("Il file originale Intervals.icu supera 25 MB")
+    extension = str(file_type).lower().lstrip(".")
+    return content, extension if extension in {"fit", "gpx", "tcx"} else "fit"
+
 def normalize_activity(item: dict) -> dict:
     start = str(item.get("start_date_local") or item.get("start_date") or "")
     duration = item.get("moving_time") or item.get("elapsed_time") or 0
@@ -62,6 +93,7 @@ def normalize_activity(item: dict) -> dict:
         "activity_name": str(item.get("name") or "Attività Intervals.icu")[:200],
         "activity_type": SPORTS.get(str(item.get("type") or ""), "other"),
         "intervals_type": item.get("type"), "source_name": item.get("source"),
+        "file_type": str(item.get("file_type") or "").lower() or None,
         "distance_m": max(0, round(float(distance))), "duration_s": max(1, round(float(duration))),
         "elapsed_s": round(float(item.get("elapsed_time") or duration or 0)) or None,
         "calories": round(float(item["calories"])) if item.get("calories") is not None else None,
