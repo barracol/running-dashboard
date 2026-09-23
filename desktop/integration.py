@@ -1,7 +1,8 @@
-"""Desktop-only profile selector and HomeHub-link replacement."""
+"""Desktop-only profile selector, editable theme and HomeHub-link replacement."""
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from threading import Lock
 
@@ -11,12 +12,16 @@ from starlette.datastructures import Headers
 
 from app.config import reset_desktop_profile, set_desktop_profile
 from .demo_data import ensure_demo_data
+from .theme import ensure_theme_file, theme_css
 
 
 PROFILE_COOKIE = "running_desktop_profile"
 LOGIN_PATH = "/desktop-login"
 _demo_lock = Lock()
 _demo_ready = False
+
+def _data_dir() -> Path:
+    return Path(os.environ.get("RUNNING_DATA_DIR", Path.home() / ".running-dashboard"))
 
 
 def _ensure_demo_once() -> None:
@@ -43,6 +48,8 @@ class DesktopProfileMiddleware:
 
         if path == "/static/hub-link.js":
             return await Response(_profile_switch_script(), media_type="application/javascript")(scope, receive, send)
+        if path == "/static/desktop-theme.css":
+            return await Response(theme_css(_data_dir()), media_type="text/css", headers={"Cache-Control": "no-store"})(scope, receive, send)
         public = path in {LOGIN_PATH, "/health", "/api/desktop/profile"} or path.startswith("/desktop-static/")
         if profile not in {"demo", "user"} and not public:
             return await RedirectResponse(LOGIN_PATH, status_code=307)(scope, receive, send)
@@ -70,6 +77,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
 
 def attach_desktop(app: FastAPI) -> None:
     static_dir = Path(__file__).parent / "static"
+    ensure_theme_file(_data_dir())
 
     @app.get(LOGIN_PATH, include_in_schema=False)
     def desktop_login() -> FileResponse:

@@ -22,6 +22,17 @@ All'avvio l'app propone **Demo** e **Il mio profilo**. Non viene richiesta una p
 selettore locale, non un meccanismo di sicurezza. Il pulsante fisso in basso a destra consente di
 cambiare profilo. Nella versione desktop il collegamento HomeHub non viene caricato.
 
+## Tema modificabile
+
+Al primo avvio viene creato `theme.json` nella cartella dati. Il campo `preset` accetta `running` o `synopsys`; la mappa `colors` può sovrascrivere `background`, `panel`, `surface`, `surface_alt`, `line`, `muted`, `text`, `primary`, `secondary`, `warning`, `danger` e `glow` con valori esadecimali. Salvare il file e ricaricare la pagina o riavviare l’app.
+
+```json
+{
+  "preset": "synopsys",
+  "colors": {"primary": "#7c3aed", "secondary": "#06b6d4"}
+}
+```
+
 ## Coach AI opzionale
 
 Senza configurazione, tutte le funzioni locali restano disponibili e il Coach AI risulta
