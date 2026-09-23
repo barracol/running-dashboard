@@ -2,21 +2,21 @@
 from pathlib import Path
 import sys
 
-from PyInstaller.utils.hooks import collect_all
-
 ROOT = Path(SPEC).resolve().parent.parent
-webview_datas, webview_binaries, webview_hidden = collect_all("webview")
 
 a = Analysis(
     [str(ROOT / "desktop" / "launcher.py")],
     pathex=[str(ROOT)],
-    binaries=webview_binaries,
+    binaries=[],
     datas=[
         (str(ROOT / "app" / "static"), "app/static"),
         (str(ROOT / "app" / "migrations"), "app/migrations"),
         (str(ROOT / "desktop" / "static"), "desktop/static"),
-    ] + webview_datas,
-    hiddenimports=webview_hidden + ["app.main"],
+    ],
+    # pywebview and pythonnet ship their own PyInstaller hooks. Using
+    # collect_all("webview") here duplicated Python.Runtime.dll as package
+    # data and produced an unusable Windows bundle.
+    hiddenimports=["app.main"],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

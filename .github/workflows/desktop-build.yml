@@ -27,6 +27,13 @@ jobs:
         run: python -m pip install -r desktop/requirements.txt
       - name: Build application
         run: pyinstaller --noconfirm --clean desktop/RunningDashboard.spec
+      - name: Smoke test Windows CLR runtime
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $env:RUNNING_DESKTOP_SMOKE_TEST = "1"
+          & "dist/RunningDashboard/RunningDashboard.exe"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Archive macOS application
         if: runner.os == 'macOS'
         run: ditto -c -k --sequesterRsrc --keepParent "dist/Running Dashboard.app" "dist/Running-Dashboard-macOS.zip"

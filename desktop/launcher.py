@@ -89,6 +89,14 @@ def setup_logging(data_dir: Path) -> None:
 
 
 def main() -> int:
+    # CI exercises the exact frozen pythonnet/CLR path used by pywebview on
+    # Windows without opening a GUI. This catches broken bundles before they
+    # are uploaded as release artifacts.
+    if os.getenv("RUNNING_DESKTOP_SMOKE_TEST") == "1":
+        if platform.system() == "Windows":
+            import clr  # noqa: F401
+        return 0
+
     data_dir = user_data_dir()
     configure_environment(data_dir)
     setup_logging(data_dir)
