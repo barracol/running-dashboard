@@ -33,6 +33,24 @@ Al primo avvio viene creato `theme.json` nella cartella dati. Il campo `preset` 
 }
 ```
 
+## Synopsys Running Community
+
+Con `"preset": "synopsys"` la pagina **Planning Gare** mostra anche gare e allenamenti pubblicati nel feed `https://leobarra.it/data/synopsys-community.json`. Le scelte **Interessato** e **Partecipo** restano nel profilo locale e non vengono inviate online. L'ultima copia valida del feed resta disponibile offline.
+
+La configurazione può essere esplicitata o personalizzata in `theme.json`:
+
+```json
+{
+  "preset": "synopsys",
+  "community": {
+    "enabled": true,
+    "feed_url": "https://leobarra.it/data/synopsys-community.json",
+    "name": "Synopsys Running Community"
+  },
+  "colors": {}
+}
+```
+
 ## Coach AI opzionale
 
 Senza configurazione, tutte le funzioni locali restano disponibili e il Coach AI risulta

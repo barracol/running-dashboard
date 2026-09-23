@@ -6,7 +6,7 @@
   <title>Planning Gare · Running Dashboard</title>
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/static/style.css?v=20260808-races2">
-  <script src="/static/races.js?v=20260808-races2" defer></script>
+  <script src="/static/races.js?v=20260923-community1" defer></script>
 <script src="/static/hub-link.js?v=1" defer></script><link rel="stylesheet" href="/static/ui-standard.css?v=1"><script src="/static/ui-standard.js?v=1" defer></script></head>
 <body>
   <header><div><a class="back" href="/">← Archivio ufficiale</a><span class="eyebrow">OBIETTIVI E ISCRIZIONI</span><h1>Planning Gare</h1></div><div class="header-actions"><a class="button secondary" href="/exercises">Esercizi</a><a class="button secondary" href="/planning">Pianificazione</a><button id="new-race">＋ Aggiungi gara</button></div></header>
@@ -20,6 +20,10 @@
       <div class="panel-head"><div><span class="eyebrow">PROSSIMI 10 MESI</span><h2 id="calendar-range">Calendario gare</h2></div><div class="week-nav"><button class="secondary" id="previous-window" title="Mese precedente">←</button><button class="secondary" id="current-window">Oggi</button><button class="secondary" id="next-window" title="Mese successivo">→</button></div></div>
       <div class="calendar-legend"><span><i class="legend-dot interested"></i>Interessato</span><span><i class="legend-dot registered"></i>Iscritto</span></div>
       <div class="year-grid" id="year-grid"></div>
+    </section>
+    <section class="panel community-panel" id="community-panel" hidden>
+      <div class="panel-head"><div><span class="eyebrow">SYNOPSYS RUNNING COMMUNITY</span><h2 id="community-name">Gare e allenamenti condivisi</h2><small id="community-status"></small></div><button class="secondary" id="refresh-community">↻ Aggiorna</button></div>
+      <div class="community-events" id="community-events"></div>
     </section>
     <section class="panel">
       <div class="panel-head"><div><span class="eyebrow">GARE</span><h2>Dettagli e iscrizioni</h2></div><span id="message" role="status"></span></div>

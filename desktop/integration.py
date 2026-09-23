@@ -6,19 +6,25 @@ import os
 from pathlib import Path
 from threading import Lock
 
-from fastapi import FastAPI, Form, Request
+from fastapi import FastAPI, Form, HTTPException, Request
+from pydantic import BaseModel
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response
 from starlette.datastructures import Headers
 
-from app.config import reset_desktop_profile, set_desktop_profile
+from app.config import get_settings, reset_desktop_profile, set_desktop_profile
+from .community import fetch_feed, read_preferences, save_preference
 from .demo_data import ensure_demo_data
-from .theme import ensure_theme_file, theme_css
+from .theme import community_settings, ensure_theme_file, theme_css
 
 
 PROFILE_COOKIE = "running_desktop_profile"
 LOGIN_PATH = "/desktop-login"
 _demo_lock = Lock()
 _demo_ready = False
+
+class CommunityPreference(BaseModel):
+    event_id: str
+    state: str
 
 def _data_dir() -> Path:
     return Path(os.environ.get("RUNNING_DATA_DIR", Path.home() / ".running-dashboard"))
@@ -96,5 +102,23 @@ def attach_desktop(app: FastAPI) -> None:
     def profile_context_with_request(request: Request) -> dict:
         value = request.cookies.get(PROFILE_COOKIE, "user")
         return {"desktop": True, "profile": value if value in {"demo", "user"} else "user"}
+
+    @app.get("/api/desktop/community", include_in_schema=False)
+    def community_feed() -> dict:
+        config = community_settings(_data_dir())
+        if not config["enabled"]:
+            return {"enabled": False, "name": config["name"], "events": [], "preferences": {}}
+        feed, cached = fetch_feed(_data_dir(), config["feed_url"])
+        return {**feed, "enabled": True, "cached": cached, "preferences": read_preferences(get_settings().data_dir)}
+
+    @app.patch("/api/desktop/community/preference", include_in_schema=False)
+    def community_preference(payload: CommunityPreference) -> dict:
+        if not community_settings(_data_dir())["enabled"]:
+            raise HTTPException(status_code=404, detail="Community non attiva")
+        try:
+            preferences = save_preference(get_settings().data_dir, payload.event_id, payload.state)
+        except ValueError as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+        return {"event_id": payload.event_id, "state": preferences.get(payload.event_id, "none")}
 
     app.add_middleware(DesktopProfileMiddleware)

@@ -37,6 +37,18 @@ def load_theme(data_dir: Path) -> tuple[str, dict[str, str]]:
                 colors[key] = value
     return preset, colors
 
+def community_settings(data_dir: Path) -> dict:
+    path = ensure_theme_file(data_dir)
+    try: config = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError): config = {}
+    preset = config.get("preset", "running")
+    community = config.get("community", {}) if isinstance(config.get("community", {}), dict) else {}
+    return {
+        "enabled": bool(community.get("enabled", preset == "synopsys")),
+        "feed_url": str(community.get("feed_url", "https://leobarra.it/data/synopsys-community.json")),
+        "name": str(community.get("name", "Synopsys Running Community")),
+    }
+
 def theme_css(data_dir: Path) -> str:
     preset, c = load_theme(data_dir)
     return f"""/* Generated from {THEME_FILENAME}; preset: {preset}. */
