@@ -1,11 +1,14 @@
 """Synopsys community feed, validation, offline cache and local preferences."""
 from __future__ import annotations
 import json
+import ssl
 from datetime import date
 from pathlib import Path
 from urllib.error import URLError
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
+
+import certifi
 
 DEFAULT_FEED_URL = "https://leobarra.it/data/synopsys-community.json"
 CACHE_FILENAME = "synopsys-community-cache.json"
@@ -42,7 +45,8 @@ def fetch_feed(data_dir: Path, url: str = DEFAULT_FEED_URL) -> tuple[dict, bool]
     cache = data_dir / CACHE_FILENAME
     try:
         request = Request(url, headers={"User-Agent": "RunningDashboard/0.1"})
-        with urlopen(request, timeout=5) as response:
+        context = ssl.create_default_context(cafile=certifi.where())
+        with urlopen(request, timeout=5, context=context) as response:
             if response.status != 200: raise URLError(f"HTTP {response.status}")
             raw = response.read(1_000_001)
             if len(raw) > 1_000_000: raise ValueError("Community feed troppo grande")

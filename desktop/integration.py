@@ -84,6 +84,8 @@ class DesktopProfileMiddleware:
         if path == "/static/hub-link.js":
             script = "" if completed else _profile_switch_script()
             return await Response(script, media_type="application/javascript")(scope, receive, send)
+        if path == "/static/ui-standard.js":
+            return await Response(_desktop_ui_script(), media_type="application/javascript")(scope, receive, send)
         if path == "/static/desktop-theme.css":
             return await Response(theme_css(_data_dir()), media_type="text/css", headers={"Cache-Control": "no-store"})(scope, receive, send)
         public = path in {LOGIN_PATH, "/health", "/api/desktop/profile"} or path.startswith("/desktop-static/")
@@ -107,6 +109,17 @@ document.addEventListener('DOMContentLoaded',async()=>{
   link.href='/desktop-login';link.textContent=`${context.profile==='demo'?'Demo':'Il mio profilo'} · cambia`;
   const style=document.createElement('style');style.textContent='.desktop-profile-switch{position:fixed;right:18px;bottom:18px;z-index:9999;padding:11px 15px;border:1px solid #52605a;border-radius:999px;background:#202923ef;color:#f4f7f5!important;text-decoration:none!important;font:800 13px/1 system-ui,sans-serif;box-shadow:0 8px 28px #0008}.desktop-profile-switch:hover{border-color:#a7f432}';
   document.head.append(style);document.body.append(link);
+});
+"""
+
+
+def _desktop_ui_script() -> str:
+    """Keep the shared UI helpers without creating a HomeHub shortcut."""
+    return """
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('dialog').forEach(dialog=>{dialog.addEventListener('click',event=>{if(event.target===dialog)dialog.close()})});
+  document.querySelectorAll('.error,.message,.form-message').forEach(element=>{element.setAttribute('role','status');element.setAttribute('aria-live','polite')});
+  if(!document.querySelector('meta[name="theme-color"]')){const meta=document.createElement('meta');meta.name='theme-color';meta.content=getComputedStyle(document.body).backgroundColor||'#07100d';document.head.append(meta)}
 });
 """
 

@@ -49,6 +49,15 @@ def test_homehub_script_is_replaced_by_profile_switch(tmp_path, monkeypatch):
     assert "Home Hub" not in script
 
 
+def test_desktop_ui_script_does_not_create_homehub_link(tmp_path, monkeypatch):
+    client = TestClient(desktop_test_app(tmp_path, monkeypatch))
+    client.post("/api/desktop/profile", data={"profile": "user"})
+    script = client.get("/static/ui-standard.js").text
+    assert "Home Hub" not in script
+    assert "ui-home-hub" not in script
+    assert "querySelectorAll('dialog')" in script
+
+
 def test_user_profile_completes_onboarding_and_hides_demo(tmp_path, monkeypatch):
     client = TestClient(desktop_test_app(tmp_path, monkeypatch))
     response = client.post("/api/desktop/profile", data={"profile":"user"}, follow_redirects=False)
