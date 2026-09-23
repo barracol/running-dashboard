@@ -4,6 +4,11 @@
 
 MVP personale e leggero per registrare e visualizzare attività sportive su Raspberry Pi. Usa FastAPI, SQLite, HTML/CSS e Chart.js.
 
+
+### Sincronizzazione Intervals.icu
+
+La dashboard può leggere e importare le attività ricevute da Garmin tramite Intervals.icu. Imposta `INTERVALS_ATHLETE_ID` e `INTERVALS_API_KEY` nell’ambiente del server; la chiave non va salvata nel repository. Il flusso mostra prima un’anteprima e importa soltanto le attività nuove, usando l’ID Intervals.icu e un controllo su data, sport, distanza e durata per evitare duplicati.
+
 ## Funzioni
 
 - CRUD di attività con data, distanza in metri, durata in secondi, calorie, FC media, tipo e note.

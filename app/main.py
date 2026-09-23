@@ -28,6 +28,7 @@ from .schemas import (
 )
 from .tracks import activity_track
 from .strava_import import import_export
+from .intervals_client import IntervalsError, configuration as intervals_configuration, list_activities as intervals_activities
 
 BASE_DIR = Path(__file__).parent
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024
@@ -555,6 +556,38 @@ async def import_strava_batch(
     }
     totals["errors"] = sum(len(report["errors"]) for report in reports)
     return {"start_date": start_date.isoformat(), "reports": reports, "totals": totals}
+
+
+@app.get("/api/intervals/status")
+def intervals_status():
+    return intervals_configuration()
+
+
+def _intervals_preview(start_date: date, end_date: date) -> list[dict]:
+    if start_date > end_date:
+        raise HTTPException(status_code=422, detail="La data iniziale deve precedere quella finale")
+    try:
+        activities = intervals_activities(start_date, end_date)
+    except IntervalsError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    for activity in activities:
+        duplicate = repository.external_duplicate(activity)
+        activity["duplicate"] = bool(duplicate)
+        activity["duplicate_reason"] = duplicate["reason"] if duplicate else None
+    return activities
+
+
+@app.get("/api/intervals/preview")
+def preview_intervals(start_date: date = Query(...), end_date: date = Query(...)):
+    activities = _intervals_preview(start_date, end_date)
+    return {"activities": activities, "total": len(activities), "new": sum(not item["duplicate"] for item in activities), "duplicates": sum(item["duplicate"] for item in activities)}
+
+
+@app.post("/api/intervals/import", status_code=status.HTTP_201_CREATED)
+def import_intervals(start_date: date = Query(...), end_date: date = Query(...)):
+    activities = _intervals_preview(start_date, end_date)
+    imported = [repository.import_external_activity(item) for item in activities if not item["duplicate"]]
+    return {"imported": len(imported), "duplicates": len(activities) - len(imported), "ids": [item["id"] for item in imported]}
 
 
 @app.post("/api/import", response_model=ImportResult, status_code=status.HTTP_201_CREATED)

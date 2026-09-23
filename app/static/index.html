@@ -7,10 +7,10 @@
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/static/style.css?v=9">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js" defer></script>
-  <script src="/static/app.js?v=11" defer></script>
+  <script src="/static/app.js?v=12" defer></script>
 <script src="/static/hub-link.js?v=1" defer></script><link rel="stylesheet" href="/static/ui-standard.css?v=1"><script src="/static/ui-standard.js?v=1" defer></script></head>
 <body>
-  <header><div><span class="eyebrow">ARCHIVIO UFFICIALE · STRAVA</span><h1>Running Dashboard</h1></div><nav class="header-actions"><button id="open-strava-import" class="secondary">Importa Strava</button><a class="button secondary" href="/exercises">Esercizi</a><a class="button secondary" href="/planning">Pianificazione</a><a class="button" href="/races">Planning gare →</a></nav></header>
+  <header><div><span class="eyebrow">ARCHIVIO MULTISPORT</span><h1>Running Dashboard</h1></div><nav class="header-actions"><button id="open-intervals-import" class="secondary" hidden>Sincronizza Intervals.icu</button><button id="open-strava-import" class="secondary">Importa Strava</button><a class="button secondary" href="/exercises">Esercizi</a><a class="button secondary" href="/planning">Pianificazione</a><a class="button" href="/races">Planning gare →</a></nav></header>
   <main>
     <section class="toolbar" aria-label="Filtri dashboard"><label>Sport<select id="sport-filter"><option value="running">Corsa</option></select></label></section>
     <section class="cards" aria-label="Riepilogo">
@@ -76,6 +76,14 @@
       </div>
       <div id="strava-import-result" class="import-result" role="status"></div>
       <div class="actions"><button type="button" class="secondary" id="cancel-strava-import">Annulla</button><button type="submit" id="submit-strava-import">Importa attività</button></div>
+    </form>
+  </dialog>
+  <dialog id="intervals-import-dialog">
+    <form id="intervals-import-form"><div class="dialog-head"><div><span class="eyebrow">GARMIN VIA INTERVALS.ICU</span><h2>Sincronizza attività</h2></div><button type="button" class="icon" id="close-intervals-import">×</button></div>
+      <p class="muted">L’anteprima è in sola lettura. L’importazione aggiunge soltanto le attività non già presenti.</p>
+      <div class="form-grid"><label>Dal<input id="intervals-start-date" type="date" required></label><label>Al<input id="intervals-end-date" type="date" required></label></div>
+      <div id="intervals-import-result" class="import-result" role="status"></div>
+      <div class="actions"><button type="button" class="secondary" id="cancel-intervals-import">Annulla</button><button type="button" class="secondary" id="preview-intervals">Anteprima</button><button type="submit" id="submit-intervals" disabled>Importa nuove</button></div>
     </form>
   </dialog>
 </body>

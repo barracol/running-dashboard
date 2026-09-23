@@ -89,6 +89,33 @@ def create_activity(activity: ActivityCreate, file_metadata: dict | None = None,
     return get_activity(activity_id)  # type: ignore[return-value]
 
 
+def external_duplicate(activity: dict, source: str = "intervals.icu") -> dict | None:
+    with database() as db:
+        exact = db.execute("SELECT id FROM activities WHERE source = ? AND source_activity_id = ?", (source, activity["external_id"])).fetchone()
+        if exact:
+            return {"id": exact["id"], "reason": "id"}
+        close = db.execute(
+            """SELECT id FROM activities WHERE activity_date = ? AND activity_type = ?
+               AND ABS(distance_m - ?) <= 50 AND ABS(duration_s - ?) <= 10 ORDER BY id LIMIT 1""",
+            (activity["activity_date"], activity["activity_type"], activity["distance_m"], activity["duration_s"]),
+        ).fetchone()
+    return {"id": close["id"], "reason": "dati"} if close else None
+
+
+def import_external_activity(activity: dict, source: str = "intervals.icu") -> dict:
+    with database() as db:
+        cursor = db.execute(
+            """INSERT INTO activities
+               (activity_date, distance_m, duration_s, calories, avg_heart_rate, activity_type, notes, shoe_id,
+                activity_name, elapsed_s, source, source_activity_id, record_status)
+               VALUES (?, ?, ?, ?, ?, ?, '', NULL, ?, ?, ?, ?, 'verified')""",
+            (activity["activity_date"], activity["distance_m"], activity["duration_s"], activity["calories"],
+             activity["avg_heart_rate"], activity["activity_type"], activity["activity_name"], activity["elapsed_s"], source, activity["external_id"]),
+        )
+        activity_id = cursor.lastrowid
+    return get_activity(activity_id)  # type: ignore[return-value]
+
+
 def update_activity(activity_id: int, patch: ActivityUpdate) -> dict | None:
     values = patch.model_dump(exclude_unset=True, mode="json")
     if not values:
