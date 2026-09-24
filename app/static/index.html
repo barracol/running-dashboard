@@ -5,13 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Running Dashboard</title>
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/static/style.css?v=9">
+  <link rel="stylesheet" href="/static/style.css?v=10">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js" defer></script>
-  <script src="/static/app.js?v=12" defer></script>
+  <script src="/static/app.js?v=13" defer></script>
 <script src="/static/hub-link.js?v=1" defer></script><link rel="stylesheet" href="/static/ui-standard.css?v=1"><script src="/static/ui-standard.js?v=1" defer></script></head>
 <body>
-  <header><div><span class="eyebrow">ARCHIVIO MULTISPORT</span><h1>Running Dashboard</h1></div><nav class="header-actions"><button id="open-intervals-import" class="secondary" hidden>Sincronizza Intervals.icu</button><button id="open-strava-import" class="secondary">Importa Strava</button><a class="button secondary" href="/exercises">Esercizi</a><a class="button secondary" href="/planning">Pianificazione</a><a class="button" href="/races">Planning gare →</a></nav></header>
+  <header class="dashboard-header"><div class="dashboard-brand"><span class="eyebrow">ARCHIVIO MULTISPORT</span><h1>Running Dashboard</h1></div><nav class="header-actions" aria-label="Navigazione principale"><div class="header-tools"><button id="open-desktop-settings" class="secondary" hidden>⚙ Impostazioni</button><button id="open-intervals-import" class="secondary" hidden>↻ Intervals.icu</button><button id="open-strava-import" class="secondary">↑ Strava</button></div><div class="header-pages"><a class="button secondary" href="/exercises">Esercizi</a><a class="button secondary" href="/planning">Pianificazione</a><a class="button" href="/races">Gare →</a></div></nav></header>
   <main>
+    <aside class="update-notice" id="update-notice" hidden><div><span class="eyebrow">AGGIORNAMENTO DISPONIBILE</span><strong id="update-title"></strong><small id="update-current"></small></div><div class="update-actions"><a class="button" id="update-download" target="_blank" rel="noopener">Apri download ↗</a><button class="secondary" id="dismiss-update" title="Nascondi fino al prossimo avvio">Non ora</button></div></aside>
     <section class="toolbar" aria-label="Filtri dashboard"><label>Sport<select id="sport-filter"><option value="running">Corsa</option></select></label></section>
     <section class="cards" aria-label="Riepilogo">
       <article><span>Attività</span><strong id="total-activities">—</strong></article>
@@ -84,6 +85,20 @@
       <div class="form-grid"><label>Dal<input id="intervals-start-date" type="date" required></label><label>Al<input id="intervals-end-date" type="date" required></label></div>
       <div id="intervals-import-result" class="import-result" role="status"></div>
       <div class="actions"><button type="button" class="secondary" id="cancel-intervals-import">Annulla</button><button type="button" class="secondary" id="preview-intervals">Anteprima</button><button type="submit" id="submit-intervals" disabled>Importa nuove</button></div>
+    </form>
+  </dialog>
+  <dialog id="desktop-settings-dialog">
+    <form id="desktop-settings-form"><div class="dialog-head"><div><span class="eyebrow">CONFIGURAZIONE LOCALE</span><h2>Integrazioni</h2></div><button type="button" class="icon" id="close-desktop-settings">×</button></div>
+      <p class="muted">Le chiavi restano esclusivamente su questo computer e non vengono incluse nel database o nelle esportazioni.</p>
+      <div class="form-grid">
+        <label class="full">Intervals.icu Athlete ID<input id="desktop-intervals-athlete" maxlength="100" autocomplete="off" placeholder="Esempio: 0"></label>
+        <label class="full">Intervals.icu API key<input id="desktop-intervals-key" type="password" maxlength="500" autocomplete="new-password" placeholder="Lascia vuoto per mantenere quella salvata"><small id="desktop-intervals-state"></small></label>
+        <label class="full">OpenAI API key<input id="desktop-openai-key" type="password" maxlength="500" autocomplete="new-password" placeholder="Lascia vuoto per mantenere quella salvata"><small id="desktop-openai-state"></small></label>
+        <label class="full">Modello Coach AI<input id="desktop-openai-model" maxlength="100" value="gpt-5.4-mini"></label>
+        <label class="full">Codice community<input id="desktop-community-code" type="password" maxlength="100" autocomplete="off" placeholder="Inserisci il codice di accesso"><small id="desktop-community-state">Tema standard attivo</small></label>
+      </div>
+      <p id="desktop-settings-message" class="form-message" role="status"></p>
+      <div class="actions"><button type="button" class="secondary" id="test-desktop-intervals">Verifica Intervals.icu</button><button type="button" class="secondary" id="cancel-desktop-settings">Annulla</button><button type="submit">Salva impostazioni</button></div>
     </form>
   </dialog>
 </body>

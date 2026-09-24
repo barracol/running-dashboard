@@ -1,3 +1,6 @@
+import hashlib
+import json
+
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -67,3 +70,58 @@ def test_user_profile_completes_onboarding_and_hides_demo(tmp_path, monkeypatch)
     assert client.get("/static/hub-link.js").text == ""
     rejected = client.post("/api/desktop/profile", data={"profile":"demo"})
     assert rejected.status_code == 409
+
+
+def test_desktop_settings_save_keys_without_returning_them(tmp_path, monkeypatch):
+    client = TestClient(desktop_test_app(tmp_path, monkeypatch))
+    client.post("/api/desktop/profile", data={"profile":"user"})
+    response = client.put("/api/desktop/settings", json={
+        "intervals_athlete_id":"0", "intervals_api_key":"intervals-secret",
+        "openai_api_key":"openai-secret", "openai_model":"test-model",
+    })
+    assert response.status_code == 200
+    assert response.json() == {
+        "intervals_athlete_id":"0", "intervals_configured":True,
+        "openai_configured":True, "openai_model":"test-model", "community_active":False,
+    }
+    saved = (tmp_path / "desktop-settings.json").read_text()
+    assert "intervals-secret" in saved and "openai-secret" in saved
+    assert "intervals-secret" not in response.text and "openai-secret" not in response.text
+    assert __import__("os").environ["INTERVALS_API_KEY"] == "intervals-secret"
+
+
+def test_desktop_settings_can_verify_intervals(tmp_path, monkeypatch):
+    from desktop import integration
+    client = TestClient(desktop_test_app(tmp_path, monkeypatch))
+    client.post("/api/desktop/profile", data={"profile":"user"})
+    client.put("/api/desktop/settings", json={"intervals_athlete_id":"0", "intervals_api_key":"secret"})
+    monkeypatch.setattr(integration, "list_intervals_activities", lambda oldest, newest: [{"id":"i1"}])
+    assert client.post("/api/desktop/settings/test-intervals").json() == {"connected":True,"activities_today":1}
+
+
+def test_community_code_unlocks_theme_without_being_saved(tmp_path, monkeypatch):
+    from desktop import theme
+    profile = next(item for item in theme.COMMUNITY_PROFILES.values() if item["preset"] == "community-violet")
+    monkeypatch.setattr(theme, "COMMUNITY_PROFILES", {hashlib.sha256(b"test-code").hexdigest(): profile})
+    client = TestClient(desktop_test_app(tmp_path, monkeypatch))
+    client.post("/api/desktop/profile", data={"profile":"user"})
+    rejected = client.put("/api/desktop/settings", json={"community_code":"wrong"})
+    assert rejected.status_code == 422
+    response = client.put("/api/desktop/settings", json={"community_code":"test-code"})
+    assert response.status_code == 200
+    assert response.json()["community_active"] is True
+    assert "test-code" not in (tmp_path / "desktop-settings.json").read_text()
+    assert json.loads((tmp_path / "theme.json").read_text())["preset"] == "community-violet"
+
+
+def test_second_community_code_uses_its_own_profile(tmp_path, monkeypatch):
+    from desktop import theme
+    profile = next(item for item in theme.COMMUNITY_PROFILES.values() if item["preset"] == "borgorun")
+    monkeypatch.setattr(theme, "COMMUNITY_PROFILES", {hashlib.sha256(b"another-test-code").hexdigest(): profile})
+    client = TestClient(desktop_test_app(tmp_path, monkeypatch))
+    client.post("/api/desktop/profile", data={"profile":"user"})
+    response = client.put("/api/desktop/settings", json={"community_code":"another-test-code"})
+    assert response.status_code == 200
+    theme = json.loads((tmp_path / "theme.json").read_text())
+    assert theme["preset"] == "borgorun"
+    assert theme["community"]["id"] == "borgolavezzaro-runner"

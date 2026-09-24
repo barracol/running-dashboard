@@ -60,6 +60,10 @@ def configure_environment(data_dir: Path) -> None:
         os.environ["OPENAI_API_KEY"] = str(settings["openai_api_key"]).strip()
     if not os.getenv("RUNNING_OPENAI_MODEL") and settings.get("openai_model"):
         os.environ["RUNNING_OPENAI_MODEL"] = str(settings["openai_model"]).strip()
+    if not os.getenv("INTERVALS_ATHLETE_ID") and settings.get("intervals_athlete_id"):
+        os.environ["INTERVALS_ATHLETE_ID"] = str(settings["intervals_athlete_id"]).strip()
+    if not os.getenv("INTERVALS_API_KEY") and settings.get("intervals_api_key"):
+        os.environ["INTERVALS_API_KEY"] = str(settings["intervals_api_key"]).strip()
 
 
 def free_local_port() -> int:

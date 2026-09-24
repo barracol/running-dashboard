@@ -9,11 +9,11 @@
   <link rel="stylesheet" href="/static/shoes.css?v=2">
   <link rel="stylesheet" href="/static/swimming.css?v=2">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js" defer></script>
-  <script src="/static/planning.js?v=10" defer></script>
+  <script src="/static/planning.js?v=11" defer></script>
   <script src="/static/swimming.js?v=2" defer></script>
 <script src="/static/hub-link.js?v=1" defer></script><link rel="stylesheet" href="/static/ui-standard.css?v=1"><script src="/static/ui-standard.js?v=1" defer></script></head>
 <body>
-  <header><div><a class="back" href="/">← Archivio ufficiale</a><span class="eyebrow">SPAZIO MANUALE</span><h1>Pianificazione</h1></div><div class="header-actions"><a class="button secondary" href="/exercises">Esercizi</a><a class="button secondary" href="/races">Planning gare</a><a class="button secondary" href="/api/drafts/export.csv" download>↓ Esporta CSV</a><button id="new-draft">＋ Attività draft</button><button class="secondary" id="new-plan">＋ Programma</button></div></header>
+  <header><div><a class="back" href="/">← Archivio ufficiale</a><span class="eyebrow">ANALISI E PROGRAMMAZIONE</span><h1>Pianificazione</h1></div><div class="header-actions"><a class="button secondary" href="/exercises">Esercizi</a><a class="button secondary" href="/races">Gare</a><button id="new-draft" hidden>Attività manuale</button><button id="new-plan">＋ Programma</button></div></header>
   <main>
     <nav class="planning-tabs" aria-label="Disciplina"><button class="planning-tab active" data-view="running">🏃 Corsa</button><button class="planning-tab secondary" data-view="swimming">🏊 Nuoto</button><button class="planning-tab secondary" data-view="cycling">🚴 Ciclismo</button></nav>
     <section class="panel coach-panel">
@@ -25,12 +25,12 @@
       <div class="week-grid" id="week-grid"></div>
     </section>
     <section class="panel swimming-only" hidden>
-      <div class="panel-head"><div><span class="eyebrow">SWIMMING</span><h2>Diario nuoto</h2><p class="muted">Una vista essenziale per programma e allenamenti registrati.</p></div><div class="header-actions"><button id="new-swim-draft">＋ Registra nuoto</button><button class="secondary" id="new-swim-plan">＋ Programma nuoto</button></div></div>
+      <div class="panel-head"><div><span class="eyebrow">SWIMMING</span><h2>Diario nuoto</h2><p class="muted">Allenamenti ufficiali importati nel periodo selezionato.</p></div><div class="header-actions"><button id="new-swim-draft" hidden>Registra nuoto</button><button class="secondary" id="new-swim-plan">＋ Programma nuoto</button></div></div>
       <div class="swim-stats"><article><span>Sessioni</span><strong id="swim-count">0</strong></article><article><span>Distanza totale</span><strong id="swim-distance">0 m</strong></article><article><span>Tempo totale</span><strong id="swim-duration">0:00:00</strong></article></div>
       <div class="table-wrap"><table><thead><tr><th>Data</th><th>Distanza</th><th>Durata</th><th>Note</th><th></th></tr></thead><tbody id="swim-list"></tbody></table></div>
     </section>
     <section class="panel cycling-only" hidden>
-      <div class="panel-head"><div><span class="eyebrow">CYCLING</span><h2>Diario ciclismo</h2><p class="muted">Una vista essenziale per programma e allenamenti registrati.</p></div><div class="header-actions"><button id="new-cycling-draft">＋ Registra ciclismo</button><button class="secondary" id="new-cycling-plan">＋ Programma ciclismo</button></div></div>
+      <div class="panel-head"><div><span class="eyebrow">CYCLING</span><h2>Diario ciclismo</h2><p class="muted">Allenamenti ufficiali importati nel periodo selezionato.</p></div><div class="header-actions"><button id="new-cycling-draft" hidden>Registra ciclismo</button><button class="secondary" id="new-cycling-plan">＋ Programma ciclismo</button></div></div>
       <div class="sport-stats"><article><span>Sessioni</span><strong id="cycling-count">0</strong></article><article><span>Distanza totale</span><strong id="cycling-distance">0 km</strong></article><article><span>Tempo totale</span><strong id="cycling-duration">0:00:00</strong></article></div>
       <div class="table-wrap"><table><thead><tr><th>Data</th><th>Distanza</th><th>Durata</th><th>Note</th><th></th></tr></thead><tbody id="cycling-list"></tbody></table></div>
     </section>
@@ -39,13 +39,17 @@
       <div class="shoe-carousel"><button class="shoe-arrow secondary" id="previous-shoe" aria-label="Scarpa precedente">←</button><div id="shoe-stage" class="shoe-stage"></div><button class="shoe-arrow secondary" id="next-shoe" aria-label="Scarpa successiva">→</button></div>
       <div id="shoe-dots" class="shoe-dots"></div>
     </section>
+    <section class="panel analysis-window">
+      <div class="panel-head"><div><span class="eyebrow">FINESTRA DI ANALISI</span><h2>Allenamenti ufficiali</h2><p class="muted">Scegli il periodo da usare per grafici e riepilogo. Le attività importate restano nell’archivio ufficiale.</p></div><div class="analysis-presets"><button class="secondary" data-analysis-weeks="4">4 settimane</button><button class="secondary" data-analysis-weeks="8">8 settimane</button><button class="secondary" data-analysis-weeks="12">12 settimane</button></div></div>
+      <div class="analysis-range"><label>Dal<input id="analysis-start" type="date"></label><label>Al<input id="analysis-end" type="date"></label><button id="apply-analysis">Analizza</button><small id="analysis-summary" class="muted"></small></div>
+    </section>
     <section class="panel chart-panel draft-trend">
-      <div class="panel-head"><div><span class="eyebrow" id="draft-sport-eyebrow">DIARIO CORSA · RIEPILOGO</span><h2 id="draft-trend-title">Andamento settimanale corsa</h2></div><small class="muted">Ultime 52 settimane · escluso dalle statistiche ufficiali</small></div>
+      <div class="panel-head"><div><span class="eyebrow" id="draft-sport-eyebrow">ARCHIVIO UFFICIALE · RIEPILOGO</span><h2 id="draft-trend-title">Andamento settimanale corsa</h2></div><small class="muted">Periodo selezionato</small></div>
       <div class="chart-wrap"><canvas id="draft-volume"></canvas></div>
       <div class="chart-wrap"><canvas id="draft-pace"></canvas></div>
     </section>
     <section class="panel chart-panel draft-trend">
-      <div class="panel-head"><div><span class="eyebrow" id="draft-sessions-eyebrow">DIARIO CORSA · SINGOLE SESSIONI</span><h2 id="draft-sessions-title">Allenamenti di corsa</h2></div><small class="muted">Dati ordinati cronologicamente · passa sul punto per i dettagli</small></div>
+      <div class="panel-head"><div><span class="eyebrow" id="draft-sessions-eyebrow">ARCHIVIO UFFICIALE · SINGOLE SESSIONI</span><h2 id="draft-sessions-title">Allenamenti di corsa</h2></div><small class="muted">Dati ordinati cronologicamente · passa sul punto per i dettagli</small></div>
       <div class="chart-wrap"><canvas id="draft-session-load"></canvas></div>
       <div class="chart-wrap"><canvas id="draft-session-performance"></canvas></div>
     </section>
@@ -55,9 +59,9 @@
       <div class="chart-wrap scale-chart"><canvas id="scale-chart"></canvas></div>
       <div class="table-wrap"><table><thead><tr><th>Data</th><th>Peso</th><th>Massa grassa</th><th>Massa muscolare</th><th>Acqua</th><th>BMI</th><th>Viscerale</th><th></th></tr></thead><tbody id="scale-list"></tbody></table></div>
     </section>
-    <section class="panel running-only">
-      <div class="panel-head"><div><span class="eyebrow">APPUNTI REALI</span><h2>Attività inserite manualmente</h2></div><div class="header-actions"><a class="button secondary" href="/api/drafts/export.csv" download>↓ Esporta CSV</a><span id="message" role="status"></span></div></div>
-      <div class="table-wrap"><table><thead><tr><th>Data</th><th>Sport</th><th>Scarpa</th><th>Distanza</th><th>Durata</th><th>Passo</th><th>Note</th><th></th></tr></thead><tbody id="draft-list"></tbody></table></div>
+    <section class="panel">
+      <div class="panel-head"><div><span class="eyebrow">PERIODO SELEZIONATO</span><h2>Attività analizzate</h2></div><span id="message" role="status"></span></div>
+      <div class="table-wrap"><table><thead><tr><th>Data</th><th>Sport</th><th>Distanza</th><th>Durata</th><th>Prestazione</th><th>Scarpa</th><th></th></tr></thead><tbody id="analysis-list"></tbody></table></div>
     </section>
   </main>
 

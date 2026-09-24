@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Planning Gare · Running Dashboard</title>
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/static/style.css?v=20260808-races2">
-  <script src="/static/races.js?v=20260923-community1" defer></script>
+  <link rel="stylesheet" href="/static/style.css?v=20260924-community2">
+  <script src="/static/races.js?v=20260924-community2" defer></script>
 <script src="/static/hub-link.js?v=1" defer></script><link rel="stylesheet" href="/static/ui-standard.css?v=1"><script src="/static/ui-standard.js?v=1" defer></script></head>
 <body>
   <header><div><a class="back" href="/">← Archivio ufficiale</a><span class="eyebrow">OBIETTIVI E ISCRIZIONI</span><h1>Planning Gare</h1></div><div class="header-actions"><a class="button secondary" href="/exercises">Esercizi</a><a class="button secondary" href="/planning">Pianificazione</a><button id="new-race">＋ Aggiungi gara</button></div></header>
@@ -22,8 +22,11 @@
       <div class="year-grid" id="year-grid"></div>
     </section>
     <section class="panel community-panel" id="community-panel" hidden>
-      <div class="panel-head"><div><span class="eyebrow">SYNOPSYS RUNNING COMMUNITY</span><h2 id="community-name">Gare e allenamenti condivisi</h2><small id="community-status"></small></div><button class="secondary" id="refresh-community">↻ Aggiorna</button></div>
-      <div class="community-events" id="community-events"></div>
+      <div class="panel-head"><div><span class="eyebrow">COMMUNITY</span><h2 id="community-name">Calendario condiviso</h2><small id="community-status"></small></div><button class="secondary" id="refresh-community">↻ Aggiorna</button></div>
+      <div class="community-sections">
+        <section class="community-section"><div class="community-section-head"><span class="eyebrow">GARE SUGGERITE</span><h3>Prossime gare della zona</h3><p>Eventi competitivi condivisi con il gruppo. Sono mostrati anche nel calendario gare qui sopra.</p></div><div class="community-events" id="community-races"></div></section>
+        <section class="community-section community-runs"><div class="community-section-head"><span class="eyebrow">COMMUNITY RUN</span><h3>Allenamenti di gruppo</h3><p>Uscite informali: punto di ritrovo, orario e passo previsto.</p></div><div class="community-events" id="community-runs"></div></section>
+      </div>
     </section>
     <section class="panel">
       <div class="panel-head"><div><span class="eyebrow">GARE</span><h2>Dettagli e iscrizioni</h2></div><span id="message" role="status"></span></div>

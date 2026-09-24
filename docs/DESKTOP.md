@@ -24,49 +24,42 @@ cambiare profilo. Nella versione desktop il collegamento HomeHub non viene caric
 
 ## Tema modificabile
 
-Al primo avvio viene creato `theme.json` nella cartella dati. Il campo `preset` accetta `running` o `synopsys`; la mappa `colors` può sovrascrivere `background`, `panel`, `surface`, `surface_alt`, `line`, `muted`, `text`, `primary`, `secondary`, `warning`, `danger` e `glow` con valori esadecimali. Salvare il file e ricaricare la pagina o riavviare l’app.
+Al primo avvio viene creato `theme.json` nella cartella dati. Il campo `preset` accetta `running`, `community-violet` o `borgorun`; la mappa `colors` può sovrascrivere `background`, `panel`, `surface`, `surface_alt`, `line`, `muted`, `text`, `primary`, `secondary`, `warning`, `danger` e `glow` con valori esadecimali. Salvare il file e ricaricare la pagina o riavviare l’app.
 
 ```json
 {
-  "preset": "synopsys",
+  "preset": "community-violet",
   "colors": {"primary": "#7c3aed", "secondary": "#06b6d4"}
 }
 ```
 
-## Synopsys Running Community
+## Running Community
 
-Con `"preset": "synopsys"` la pagina **Planning Gare** mostra anche gare e allenamenti pubblicati nel feed `https://leobarra.it/data/synopsys-community.json`. Le scelte **Interessato** e **Partecipo** restano nel profilo locale e non vengono inviate online. L'ultima copia valida del feed resta disponibile offline.
+Con un profilo community attivo, la pagina **Gare** mostra anche gare e allenamenti pubblicati nel feed dedicato. Le scelte **Interessato** e **Partecipo** restano nel profilo locale e non vengono inviate online. L'ultima copia valida del feed resta disponibile offline.
 
 La configurazione può essere esplicitata o personalizzata in `theme.json`:
 
 ```json
 {
-  "preset": "synopsys",
+  "preset": "community-violet",
   "community": {
     "enabled": true,
-    "feed_url": "https://leobarra.it/data/synopsys-community.json",
-    "name": "Synopsys Running Community"
+    "feed_url": "https://leobarra.it/data/running-community.json",
+    "name": "Running Community"
   },
   "colors": {}
 }
 ```
 
-## Coach AI opzionale
+## Integrazioni opzionali
 
-Senza configurazione, tutte le funzioni locali restano disponibili e il Coach AI risulta
-disattivato. Per abilitarlo nella prima versione creare `desktop-settings.json` nella cartella
-dati personale:
+Il pulsante **Integrazioni** della versione desktop permette di configurare Intervals.icu e il
+Coach AI senza modificare file manualmente. Athlete ID, API key e modello vengono conservati in
+`desktop-settings.json` nella cartella dati personale, con permessi limitati all'utente. Le chiavi
+non vengono restituite al browser, inserite nel database o incluse nelle esportazioni.
 
-```json
-{
-  "openai_api_key": "INSERIRE_LA_PROPRIA_CHIAVE",
-  "openai_model": "gpt-5.4-mini"
-}
-```
-
-La chiave viene letta localmente all'avvio, non è inserita nel database e non viene inviata al
-browser. Una schermata Impostazioni interna sostituirà questo passaggio manuale prima della
-prima release pubblica.
+Lo stesso pannello accetta un codice community. Un codice valido abilita il tema e le funzioni
+dedicate; il codice viene verificato localmente e non viene salvato nel file delle impostazioni.
 
 ## Build locale macOS
 

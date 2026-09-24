@@ -1,4 +1,4 @@
-"""Synopsys community feed, validation, offline cache and local preferences."""
+"""Community feed validation, namespaced offline cache and preferences."""
 from __future__ import annotations
 import json
 import ssl
@@ -10,9 +10,7 @@ from urllib.request import Request, urlopen
 
 import certifi
 
-DEFAULT_FEED_URL = "https://leobarra.it/data/synopsys-community.json"
-CACHE_FILENAME = "synopsys-community-cache.json"
-PREFERENCES_FILENAME = "community-preferences.json"
+DEFAULT_FEED_URL = "https://leobarra.it/data/running-community.json"
 ALLOWED_TYPES = {"race", "workout"}
 ALLOWED_STATES = {"none", "interested", "attending"}
 
@@ -28,7 +26,7 @@ def _valid_event(item) -> dict | None:
     except ValueError: return None
     if not event_id or len(event_id) > 120 or event_type not in ALLOWED_TYPES or not title: return None
     result = {"id": event_id, "type": event_type, "title": title[:200], "date": event_date}
-    for key in ("time", "meeting_point", "location", "sport", "pace", "notes"):
+    for key in ("time", "meeting_point", "location", "sport", "pace", "duration", "notes"):
         if item.get(key) is not None: result[key] = str(item[key])[:1000]
     for key in ("website", "registration_url"):
         value = str(item.get(key, ""))[:1000]
@@ -39,10 +37,14 @@ def _valid_event(item) -> dict | None:
 def _validate_feed(payload) -> dict:
     if not isinstance(payload, dict) or not isinstance(payload.get("events"), list): raise ValueError("Community feed non valido")
     events = [event for item in payload["events"] if (event := _valid_event(item))]
-    return {"name": str(payload.get("name", "Synopsys Running Community"))[:100], "updated_at": str(payload.get("updated_at", ""))[:40], "events": sorted(events, key=lambda item: (item["date"], item["title"]))}
+    return {"name": str(payload.get("name", "Running Community"))[:100], "updated_at": str(payload.get("updated_at", ""))[:40], "events": sorted(events, key=lambda item: (item["date"], item["title"]))}
 
-def fetch_feed(data_dir: Path, url: str = DEFAULT_FEED_URL) -> tuple[dict, bool]:
-    cache = data_dir / CACHE_FILENAME
+def _safe_namespace(value: str) -> str:
+    clean = "".join(char for char in value.lower() if char.isalnum() or char in "-_").strip("-_")
+    return clean[:80] or "community"
+
+def fetch_feed(data_dir: Path, url: str = DEFAULT_FEED_URL, namespace: str = "community") -> tuple[dict, bool]:
+    cache = data_dir / f"{_safe_namespace(namespace)}-cache.json"
     try:
         request = Request(url, headers={"User-Agent": "RunningDashboard/0.1"})
         context = ssl.create_default_context(cafile=certifi.where())
@@ -57,18 +59,18 @@ def fetch_feed(data_dir: Path, url: str = DEFAULT_FEED_URL) -> tuple[dict, bool]
     except (OSError, URLError, ValueError, json.JSONDecodeError, UnicodeDecodeError):
         cached = _read_json(cache, None)
         if cached is not None: return _validate_feed(cached), True
-        return {"name": "Synopsys Running Community", "updated_at": "", "events": []}, True
+        return {"name": "Running Community", "updated_at": "", "events": []}, True
 
-def read_preferences(profile_dir: Path) -> dict[str, str]:
-    values = _read_json(profile_dir / PREFERENCES_FILENAME, {})
+def read_preferences(profile_dir: Path, namespace: str = "community") -> dict[str, str]:
+    values = _read_json(profile_dir / f"{_safe_namespace(namespace)}-preferences.json", {})
     if not isinstance(values, dict): return {}
     return {str(key): value for key, value in values.items() if value in ALLOWED_STATES and value != "none"}
 
-def save_preference(profile_dir: Path, event_id: str, state: str) -> dict[str, str]:
+def save_preference(profile_dir: Path, event_id: str, state: str, namespace: str = "community") -> dict[str, str]:
     if not event_id or len(event_id) > 120 or state not in ALLOWED_STATES: raise ValueError("Preferenza non valida")
-    values = read_preferences(profile_dir)
+    values = read_preferences(profile_dir, namespace)
     if state == "none": values.pop(event_id, None)
     else: values[event_id] = state
     profile_dir.mkdir(parents=True, exist_ok=True)
-    (profile_dir / PREFERENCES_FILENAME).write_text(json.dumps(values, indent=2) + "\n", encoding="utf-8")
+    (profile_dir / f"{_safe_namespace(namespace)}-preferences.json").write_text(json.dumps(values, indent=2) + "\n", encoding="utf-8")
     return values

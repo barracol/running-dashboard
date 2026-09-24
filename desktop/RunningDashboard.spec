@@ -3,6 +3,11 @@ from pathlib import Path
 import sys
 
 ROOT = Path(SPEC).resolve().parent.parent
+VERSION_NAMESPACE = {}
+exec((ROOT / "desktop" / "version.py").read_text(encoding="utf-8"), VERSION_NAMESPACE)
+APP_VERSION = VERSION_NAMESPACE["APP_VERSION"]
+WINDOWS_ICON = ROOT / "desktop" / "assets" / "RunningDashboard.ico"
+MACOS_ICON = ROOT / "desktop" / "assets" / "RunningDashboard.icns"
 
 a = Analysis(
     [str(ROOT / "desktop" / "launcher.py")],
@@ -36,6 +41,7 @@ exe = EXE(
     strip=False,
     upx=False,
     console=False,
+    icon=str(WINDOWS_ICON if sys.platform == "win32" else MACOS_ICON),
 )
 collection = COLLECT(
     exe,
@@ -50,10 +56,11 @@ if sys.platform == "darwin":
     app = BUNDLE(
         collection,
         name="Running Dashboard.app",
+        icon=str(MACOS_ICON),
         bundle_identifier="it.leobarra.runningdashboard",
         info_plist={
             "CFBundleDisplayName": "Running Dashboard",
-            "CFBundleShortVersionString": "0.1.0",
+            "CFBundleShortVersionString": APP_VERSION,
             "NSHighResolutionCapable": True,
         },
     )
